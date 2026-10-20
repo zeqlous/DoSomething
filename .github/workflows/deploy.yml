@@ -39,7 +39,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: './dist/' # Points to Angular's build output directory
+          path: './dist/DoSomething/browser'
 
       - name: Deploy to GitHub Pages
         id: deployment
