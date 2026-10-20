@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { NgFor, NgClass } from '@angular/common'; // Import NgFor
+import { RouterLink } from '@angular/router';
 
 interface Opportunity {
   title: string;
@@ -12,7 +13,7 @@ interface Opportunity {
 @Component({
   selector: 'app-home',
   standalone: true,
-  imports: [NgFor, NgClass],
+  imports: [NgFor, NgClass, RouterLink],
   templateUrl: './home.html',
   styleUrl: './home.css'
 })

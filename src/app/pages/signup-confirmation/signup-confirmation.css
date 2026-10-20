@@ -1,0 +1,43 @@
+
+.confirmation-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 100vh;
+  background-color: #a4a084;
+}
+
+.confirmation-card {
+  background-color: white;
+  padding: 30px;
+  width: 320px;
+  border-radius: 6px;
+  text-align: center;
+}
+
+.confirmation-card h1 {
+  font-size: 24px;
+  margin-bottom: 15px;
+  color: black;
+  font-family: Arial, sans-serif;
+}
+
+.confirmation-card p {
+  color: #333;
+  font-family: Arial, sans-serif;
+}
+
+.confirmation-details {
+  margin: 20px 0;
+  text-align: left;
+  font-family: Arial, sans-serif;
+}
+
+.home-btn {
+  background-color: #4763ff;
+  color: white;
+  border: none;
+  padding: 10px 30px;
+  border-radius: 4px;
+  cursor: pointer;
+}

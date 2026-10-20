@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
-import { NgFor, NgIf } from '@angular/common';
+import { NgFor, NgIf, } from '@angular/common';
+import { RouterLink } from '@angular/router';
 
 interface SearchResult {
   title: string;
@@ -13,7 +14,7 @@ interface SearchResult {
 @Component({
   selector: 'app-search',
   standalone: true,
-  imports: [NgFor, NgIf],
+  imports: [NgFor, NgIf, RouterLink],
   templateUrl: './search.html',
   styleUrl: './search.css'
 })
