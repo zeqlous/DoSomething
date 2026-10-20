@@ -1,0 +1,69 @@
+.navbar {
+  background-color: #f7f7f5;
+  border-bottom: 2px solid #dcdcdc;
+  font-family: Arial, sans-serif;
+}
+
+.navbar-top {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+}
+
+.logo a {
+  font-size: 28px;
+  font-weight: bold;
+  color: #000;
+  text-decoration: none;
+}
+
+.search-bar input {
+  width: 300px;
+  padding: 8px 15px;
+  border-radius: 20px;
+  border: 1px solid #ccc;
+  outline: none;
+  font-size: 14px;
+}
+
+.user-auth {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-weight: bold;
+}
+
+.user-auth a {
+  color: #000;
+  text-decoration: none;
+}
+
+.navbar-bottom {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #dbe2ef;
+  padding: 10px 30px;
+  border-top: 1px solid #ccc;
+}
+
+.btn-opportunities {
+  background-color: #b0c4de;
+  border: 1px solid #9ac0cd;
+  padding: 6px 15px;
+  border-radius: 4px;
+  font-weight: bold;
+  color: #333;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.calendar-btn {
+  font-size: 20px;
+  text-decoration: none;
+  background: #c6d4e1;
+  padding: 5px 8px;
+  border-radius: 4px;
+  border: 1px solid #b0c4de;
+}

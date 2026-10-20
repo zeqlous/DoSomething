@@ -1,1 +1,29 @@
-<p>header works!</p>
+<header class="navbar">
+  <div class="navbar-top">
+    <!-- Logo / Brand -->
+    <div class="logo">
+      <a routerLink="/">DoSomething.com</a>
+    </div>
+
+    <!-- Search Input -->
+    <div class="search-bar">
+      <input type="text" placeholder="Search..." />
+    </div>
+
+    <!-- User Profile / Auth Link -->
+    <div class="user-auth">
+      <span class="user-icon">👤</span>
+      <a routerLink="/schedule">Jane Doe</a>
+    </div>
+  </div>
+
+  <div class="navbar-bottom">
+    <!-- Search For Opportunities Button -->
+    <a routerLink="/search" class="btn-opportunities">Search For Opportunities</a>
+
+    <!-- Calendar Schedule Icon Link -->
+    <a routerLink="/schedule" class="calendar-btn" title="Schedule">
+      📅
+    </a>
+  </div>
+</header>

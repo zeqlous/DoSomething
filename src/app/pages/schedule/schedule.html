@@ -1,1 +1,97 @@
-<p>schedule works!</p>
+<div class="schedule-container">
+  <div class="schedule-layout">
+    
+    <!-- Sidebar / Volunteer Hub Menu -->
+    <aside class="sidebar">
+      <div class="sidebar-header">
+        <h2>Volunteer Hub</h2>
+        <p>Manage your impact and upcoming shifts.</p>
+      </div>
+
+      <!-- Interactive Navigation Links -->
+      <nav class="hub-nav">
+        <a 
+          *ngFor="let item of navItems" 
+          href="#" 
+          class="nav-item" 
+          [class.active]="activeTab === item.id"
+          (click)="selectTab(item.id, $event)"
+        >
+          {{ item.icon }} {{ item.label }}
+        </a>
+      </nav>
+
+      <!-- User Profile Card -->
+      <div class="user-profile-card">
+        <div class="avatar">JD</div>
+        <div class="user-details">
+          <span class="name">Jane Doe</span>
+          <span class="role">Gold Member</span>
+        </div>
+      </div>
+    </aside>
+
+    <!-- TAB 1: Calendar View -->
+    <main class="calendar-main" *ngIf="activeTab === 'schedule'">
+      <div class="calendar-header">
+        <div class="month-title">
+          <h2>October 2023</h2>
+          <p>You have 3 upcoming events this month.</p>
+        </div>
+        <div class="calendar-nav-buttons">
+          <button class="nav-btn">&lt;</button>
+          <button class="nav-btn">&gt;</button>
+        </div>
+      </div>
+
+      <div class="calendar-grid">
+        <div *ngFor="let day of weekdays" class="weekday">{{ day }}</div>
+
+        <div 
+          *ngFor="let day of calendarDays" 
+          class="day"
+          [class.muted]="day.isMuted"
+          [class.has-event]="day.event"
+          [class.green]="day.event?.type === 'green'"
+          [class.red]="day.event?.type === 'red'"
+        >
+          <span class="date-num">{{ day.dayNumber }}</span>
+          <span *ngIf="day.event" class="event-tag">{{ day.event.title }}</span>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 2: My Events List View (Matching Wireframe) -->
+    <main class="events-main" *ngIf="activeTab === 'events'">
+      <h2 class="events-title">Upcoming Events</h2>
+
+      <div class="events-list">
+        <div class="my-event-card" *ngFor="let event of myEvents">
+          <div class="event-icon-box">
+            <span class="event-icon">{{ event.icon }}</span>
+          </div>
+
+          <div class="event-details">
+            <h3 class="event-title">{{ event.title }}</h3>
+            <p class="event-date">{{ event.date }}</p>
+            <p class="event-location">{{ event.location }}</p>
+          </div>
+
+          <div class="event-right">
+            <span class="status-badge" [ngClass]="event.statusClass">
+              {{ event.status }}
+            </span>
+            <button class="arrow-btn" aria-label="View Details">›</button>
+          </div>
+        </div>
+      </div>
+    </main>
+
+    <!-- TAB 3: Settings View (Placeholder) -->
+    <main class="events-main" *ngIf="activeTab === 'settings'">
+      <h2 class="events-title">Settings</h2>
+      <p style="color: #666;">Account preferences and notifications settings will appear here.</p>
+    </main>
+
+  </div>
+</div>
