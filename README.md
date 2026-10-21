@@ -1,9 +1,15 @@
-# DoSomething Website
+# DoSomething Website--Prototype V1
 
-**Features:**
+**Features (In-Progress):**
 - Search and register for volunteer experiences
 - Look through registered events through built-in calendar
 - Sign up / Login to account
+
+# User Tasks and Accessing the Site--(TA's and Alisha):
+**Our site is published to github pages at the following link: [DoSomething.com](https://zeqlous.github.io/DoSomething/)**
+* Task 1: Navigate to the sign-up menu and create a Volunteer App account. Then, navigate to the main menu.---Navigation: Main Menu → Sign up → Create account
+* Task 2: Visit your schedule and find what events you have scheduled.---Navigation: Main menu → Build a schedule → Events
+* Task 3: Register for a new volunteer experience---Navigation: Main menu → Search for opportunities → Register (On one or both options)
 
 **Start Developing:**
 
