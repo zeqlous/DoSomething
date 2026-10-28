@@ -1,22 +1,28 @@
-import { Component } from '@angular/core';
-import { CommonModule } from '@angular/common';
+import { Component, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { Store } from './store';
 
 @Component({
   selector: 'app-signup',
   standalone: true,
-  imports: [CommonModule],
   templateUrl: './signup.html',
   styleUrls: ['./signup.css']
 })
 export class SignupComponent {
-  email = '';
-  isSubmitted = false;
+  private router = inject(Router);
+  store = inject(Store);
 
-  constructor(private router: Router) {}
+  isSubmitted = signal(false);
+  error = signal('');
 
-  createAccount() {
-    this.isSubmitted = true;
+  createAccount(name: string, email: string, password: string) {
+    if (!name.trim() || !email.includes('@') || password.length < 6) {
+      this.error.set('Enter your name, a valid email, and a password of at least 6 characters.');
+      return;
+    }
+    this.error.set('');
+    this.store.register(name.trim(), email.trim());
+    this.isSubmitted.set(true);
   }
 
   goHome() {

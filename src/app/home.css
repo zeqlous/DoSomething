@@ -9,3 +9,7 @@
 .status-badge.completed { background-color: #e8f0fe; color: #1a73e8; }
 .cta-banner { background-color: #dbe2ef; display: flex; justify-content: center; align-items: center; gap: 20px; padding: 25px; margin-top: 30px; }
 .cta-button { background-color: #ffbb00; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
+.thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; }
+.details { font-size: 13px; color: #666; margin: 4px 0 0; }
+.join-btn { background: #ffbb00; border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer; white-space: nowrap; }
+.join-btn.joined { background: #e6f4ea; color: #137333; }

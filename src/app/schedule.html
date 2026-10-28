@@ -3,25 +3,77 @@
     <aside class="sidebar">
       <h2>Volunteer Hub</h2>
       <nav class="hub-nav">
-        <a *ngFor="let item of navItems" href="#" class="nav-item" [class.active]="activeTab === item.id" (click)="selectTab(item.id, $event)">
-          {{ item.icon }} {{ item.label }}
-        </a>
+        @for (item of navItems; track item.id) {
+          <a href="#" class="nav-item" [class.active]="activeTab() === item.id" (click)="selectTab(item.id, $event)">
+            {{ item.icon }} {{ item.label }}
+          </a>
+        }
       </nav>
     </aside>
 
     <main class="events-main">
-      <h2 class="events-title">Upcoming Shifts & Events</h2>
-      <div class="events-list">
-        <div class="my-event-card" *ngFor="let event of myEvents">
-          <div class="event-icon-box">{{ event.icon }}</div>
-          <div class="event-details">
-            <h3 class="event-title">{{ event.title }}</h3>
-            <p class="event-date">{{ event.date }}</p>
-            <p class="event-location">{{ event.location }}</p>
-          </div>
-          <span class="status-badge" [ngClass]="event.statusClass">{{ event.status }}</span>
+      @if (activeTab() === 'calendar') {
+        <div class="cal-header">
+          <button class="cal-nav" (click)="changeMonth(-1)" aria-label="Previous month">‹</button>
+          <h2 class="events-title">{{ monthLabel() }}</h2>
+          <button class="cal-nav" (click)="changeMonth(1)" aria-label="Next month">›</button>
         </div>
-      </div>
+
+        <div class="cal-grid">
+          @for (w of weekdays; track w) {
+            <div class="cal-weekday">{{ w }}</div>
+          }
+          @for (c of cells(); track $index) {
+            @if (c) {
+              <button class="cal-cell" [class.today]="c.isToday" [class.selected]="selectedIso() === c.iso" (click)="selectDay(c)">
+                <span class="cal-day">{{ c.day }}</span>
+                @for (e of c.events; track e.id) {
+                  <span class="cal-dot" [class.joined]="store.isJoined(e.id)" [title]="e.title">{{ e.icon }}</span>
+                }
+              </button>
+            } @else {
+              <div class="cal-empty"></div>
+            }
+          }
+        </div>
+
+        @if (selectedIso()) {
+          <h3 class="day-heading">Opportunities on {{ selectedIso() }}</h3>
+          @for (e of selectedEvents(); track e.id) {
+            <div class="my-event-card">
+              <div class="event-icon-box">{{ e.icon }}</div>
+              <div class="event-details">
+                <h3 class="event-title">{{ e.title }}</h3>
+                <p class="event-date">{{ store.when(e) }}</p>
+                <p class="event-location">{{ e.location }}</p>
+              </div>
+              <button class="join-btn" [class.joined]="store.isJoined(e.id)" (click)="store.toggle(e.id)">
+                {{ store.isJoined(e.id) ? 'Cancel' : 'Volunteer' }}
+              </button>
+            </div>
+          } @empty {
+            <p>Nothing scheduled this day.</p>
+          }
+        }
+      } @else {
+        <h2 class="events-title">My Upcoming Shifts</h2>
+        <div class="events-list">
+          @for (e of store.myEvents(); track e.id) {
+            <div class="my-event-card">
+              <div class="event-icon-box">{{ e.icon }}</div>
+              <div class="event-details">
+                <h3 class="event-title">{{ e.title }}</h3>
+                <p class="event-date">{{ store.when(e) }}</p>
+                <p class="event-location">{{ e.location }}</p>
+              </div>
+              <span class="status-badge confirmed">Confirmed</span>
+              <button class="join-btn" (click)="store.toggle(e.id)">Cancel</button>
+            </div>
+          } @empty {
+            <p>You haven't signed up for anything yet. Pick a day on the calendar or head to Home.</p>
+          }
+        </div>
+      }
     </main>
   </div>
 </div>

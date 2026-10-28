@@ -5,20 +5,47 @@
 
   <section class="opportunities-section">
     <div class="section-header">Open Opportunities</div>
-    <div class="opportunity-card" *ngFor="let item of openOpportunities">
-      <div class="card-left">
-        <span class="heart-icon">❤️</span>
-        <div class="card-info">
-          <h3>{{ item.title }}</h3>
-          <p>{{ item.date }} - {{ item.location }}</p>
+    @for (e of store.openEvents(); track e.id) {
+      <div class="opportunity-card">
+        <div class="card-left">
+          @if (e.imageUrl) {
+            <img class="thumb" [src]="e.imageUrl" [alt]="e.title" />
+          } @else {
+            <span class="heart-icon">{{ e.icon }}</span>
+          }
+          <div class="card-info">
+            <h3>{{ e.title }}</h3>
+            <p>{{ store.when(e) }} - {{ e.location }}</p>
+            <p class="details">{{ e.details }}</p>
+          </div>
         </div>
+        <button class="join-btn" [class.joined]="store.isJoined(e.id)" (click)="store.toggle(e.id)">
+          {{ store.isJoined(e.id) ? 'Signed Up ✓' : 'Volunteer' }}
+        </button>
       </div>
-      <span class="status-badge" [ngClass]="item.statusClass">{{ item.status }}</span>
-    </div>
+    } @empty {
+      <p>No open opportunities right now.</p>
+    }
+
+    <div class="section-header">Past Opportunities</div>
+    @for (e of store.pastEvents(); track e.id) {
+      <div class="opportunity-card">
+        <div class="card-left">
+          <span class="heart-icon">{{ e.icon }}</span>
+          <div class="card-info">
+            <h3>{{ e.title }}</h3>
+            <p>{{ store.when(e) }} - {{ e.location }}</p>
+          </div>
+        </div>
+        <span class="status-badge completed">Completed</span>
+      </div>
+    }
   </section>
 
-  <div class="cta-banner">
-    <span class="cta-text">Start Your Journey:</span>
-    <button class="cta-button" routerLink="/signup">Sign Up Today!</button>
-  </div>
+  @if (!store.account()) {
+    <div class="cta-banner">
+      <span class="cta-text">Start Your Journey:</span>
+      <button class="cta-button" routerLink="/signup">Sign Up Today!</button>
+    </div>
+  }
 </div>

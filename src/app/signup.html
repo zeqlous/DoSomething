@@ -1,22 +1,33 @@
 <div class="signup-container">
-  <div class="signup-card" *ngIf="!isSubmitted">
-    <h1>Sign Up</h1>
-    <form>
-      <label for="email">Email</label>
-      <input type="email" id="email" placeholder="Enter your email" (input)="email = $any($event.target).value" />
-      
-      <label for="password">Password</label>
-      <input type="password" id="password" placeholder="Enter your password" />
+  @if (!isSubmitted()) {
+    <div class="signup-card">
+      <h1>Sign Up</h1>
+      <form (submit)="$event.preventDefault()">
+        <label for="name">Name</label>
+        <input #name type="text" id="name" placeholder="Enter your name" />
 
-      <button type="button" class="create-btn" (click)="createAccount()">Create Account</button>
-    </form>
-    <button type="button" class="back-btn" (click)="goHome()">Back</button>
-  </div>
+        <label for="email">Email</label>
+        <input #email type="email" id="email" placeholder="Enter your email" />
 
-  <div class="confirmation-card" *ngIf="isSubmitted">
-    <h1>Account Created!</h1>
-    <p>Your account has been successfully created.</p>
-    <p><strong>Email:</strong> {{ email }}</p>
-    <button class="home-btn" (click)="goHome()">Home</button>
-  </div>
+        <label for="password">Password</label>
+        <input #password type="password" id="password" placeholder="Enter your password" />
+
+        @if (error()) {
+          <p class="error">{{ error() }}</p>
+        }
+
+        <button type="button" class="create-btn" (click)="createAccount(name.value, email.value, password.value)">
+          Create Account
+        </button>
+      </form>
+      <button type="button" class="back-btn" (click)="goHome()">Back</button>
+    </div>
+  } @else {
+    <div class="confirmation-card">
+      <h1>Account Created!</h1>
+      <p>Your account has been successfully created.</p>
+      <p><strong>Email:</strong> {{ store.account()?.email }}</p>
+      <button class="home-btn" (click)="goHome()">Home</button>
+    </div>
+  }
 </div>

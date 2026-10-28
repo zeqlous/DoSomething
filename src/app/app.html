@@ -1,30 +1,26 @@
-<!-- Persistent Header Navigation -->
 <header class="navbar">
   <div class="navbar-top">
-    <!-- Logo / Brand -->
     <div class="logo">
       <a routerLink="/">DoSomething.com</a>
     </div>
 
-    <!-- User Profile / Auth Link -->
     <div class="user-auth">
       <span class="user-icon">👤</span>
-      <a routerLink="/schedule">Jane Doe</a>
+      @if (store.account(); as acct) {
+        <a routerLink="/schedule">{{ acct.name }}</a>
+        <button class="logout-btn" (click)="logout()">Log out</button>
+      } @else {
+        <a routerLink="/signup">Sign Up</a>
+      }
     </div>
   </div>
 
   <div class="navbar-bottom">
-    <!-- Home / Opportunities Navigation -->
     <a routerLink="/" class="btn-opportunities">Home</a>
-
-    <!-- Calendar Schedule Icon Link -->
-    <a routerLink="/schedule" class="calendar-btn" title="Schedule">
-      📅
-    </a>
+    <a routerLink="/schedule" class="calendar-btn" title="Schedule">📅</a>
   </div>
 </header>
 
-<!-- Main Page Content rendered by Router -->
 <main>
   <router-outlet></router-outlet>
 </main>
