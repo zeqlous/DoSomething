@@ -1,5 +1,28 @@
-<!-- Shared Header Navigation across all pages -->
-<app-header></app-header>
+<!-- Persistent Header Navigation -->
+<header class="navbar">
+  <div class="navbar-top">
+    <!-- Logo / Brand -->
+    <div class="logo">
+      <a routerLink="/">DoSomething.com</a>
+    </div>
+
+    <!-- User Profile / Auth Link -->
+    <div class="user-auth">
+      <span class="user-icon">👤</span>
+      <a routerLink="/schedule">Jane Doe</a>
+    </div>
+  </div>
+
+  <div class="navbar-bottom">
+    <!-- Home / Opportunities Navigation -->
+    <a routerLink="/" class="btn-opportunities">Home</a>
+
+    <!-- Calendar Schedule Icon Link -->
+    <a routerLink="/schedule" class="calendar-btn" title="Schedule">
+      📅
+    </a>
+  </div>
+</header>
 
 <!-- Main Page Content rendered by Router -->
 <main>

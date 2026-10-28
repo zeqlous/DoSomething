@@ -1,0 +1,27 @@
+<div class="schedule-container">
+  <div class="schedule-layout">
+    <aside class="sidebar">
+      <h2>Volunteer Hub</h2>
+      <nav class="hub-nav">
+        <a *ngFor="let item of navItems" href="#" class="nav-item" [class.active]="activeTab === item.id" (click)="selectTab(item.id, $event)">
+          {{ item.icon }} {{ item.label }}
+        </a>
+      </nav>
+    </aside>
+
+    <main class="events-main">
+      <h2 class="events-title">Upcoming Shifts & Events</h2>
+      <div class="events-list">
+        <div class="my-event-card" *ngFor="let event of myEvents">
+          <div class="event-icon-box">{{ event.icon }}</div>
+          <div class="event-details">
+            <h3 class="event-title">{{ event.title }}</h3>
+            <p class="event-date">{{ event.date }}</p>
+            <p class="event-location">{{ event.location }}</p>
+          </div>
+          <span class="status-badge" [ngClass]="event.statusClass">{{ event.status }}</span>
+        </div>
+      </div>
+    </main>
+  </div>
+</div>

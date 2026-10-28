@@ -1,0 +1,8 @@
+.signup-container { display: flex; justify-content: center; align-items: center; min-height: 100vh; background-color: #a4a084; }
+.signup-card, .confirmation-card { background-color: white; padding: 30px; width: 300px; border-radius: 6px; text-align: center; font-family: Arial, sans-serif; }
+.signup-card h1, .confirmation-card h1 { color: black; margin-bottom: 20px; font-size: 24px; }
+.signup-card form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
+.signup-card label { text-align: left; font-size: 12px; font-weight: bold; }
+.signup-card input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
+.create-btn, .home-btn { background-color: #4763ff; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; }
+.back-btn { background-color: #dddddd; border: none; border-radius: 4px; padding: 8px; cursor: pointer; width: 100%; }
