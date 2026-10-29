@@ -47,9 +47,7 @@
                 <p class="event-date">{{ store.when(e) }}</p>
                 <p class="event-location">{{ e.location }}</p>
               </div>
-              <button class="join-btn" [class.joined]="store.isJoined(e.id)" (click)="store.toggle(e.id)">
-                {{ store.isJoined(e.id) ? 'Cancel' : 'Volunteer' }}
-              </button>
+              <app-volunteer-action [event]="e" />
             </div>
           } @empty {
             <p>Nothing scheduled this day.</p>
@@ -66,8 +64,7 @@
                 <p class="event-date">{{ store.when(e) }}</p>
                 <p class="event-location">{{ e.location }}</p>
               </div>
-              <span class="status-badge confirmed">Confirmed</span>
-              <button class="join-btn" (click)="store.toggle(e.id)">Cancel</button>
+              <app-volunteer-action [event]="e" />
             </div>
           } @empty {
             <p>You haven't signed up for anything yet. Pick a day on the calendar or head to Home.</p>

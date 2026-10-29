@@ -20,14 +20,19 @@
           Create Account
         </button>
       </form>
-      <button type="button" class="back-btn" (click)="goHome()">Back</button>
+      <button type="button" class="back-btn" (click)="back()">Back</button>
     </div>
   } @else {
     <div class="confirmation-card">
       <h1>Account Created!</h1>
       <p>Your account has been successfully created.</p>
       <p><strong>Email:</strong> {{ store.account()?.email }}</p>
-      <button class="home-btn" (click)="goHome()">Home</button>
+      @if (store.pending()) {
+        <p class="pending-note">You'll be signed up for your event when you continue</p>
+        <button class="home-btn" (click)="continue()">Continue to event</button>
+      } @else {
+        <button class="home-btn" (click)="continue()">Home</button>
+      }
     </div>
   }
 </div>

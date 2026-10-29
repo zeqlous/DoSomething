@@ -6,7 +6,7 @@
   <section class="opportunities-section">
     <div class="section-header">Open Opportunities</div>
     @for (e of store.openEvents(); track e.id) {
-      <div class="opportunity-card">
+      <div class="opportunity-card" [id]="'event-' + e.id" [class.highlight]="store.focusEventId() === e.id">
         <div class="card-left">
           @if (e.imageUrl) {
             <img class="thumb" [src]="e.imageUrl" [alt]="e.title" />
@@ -19,9 +19,7 @@
             <p class="details">{{ e.details }}</p>
           </div>
         </div>
-        <button class="join-btn" [class.joined]="store.isJoined(e.id)" (click)="store.toggle(e.id)">
-          {{ store.isJoined(e.id) ? 'Signed Up ✓' : 'Volunteer' }}
-        </button>
+        <app-volunteer-action [event]="e" />
       </div>
     } @empty {
       <p>No open opportunities right now.</p>
@@ -37,7 +35,7 @@
             <p>{{ store.when(e) }} - {{ e.location }}</p>
           </div>
         </div>
-        <span class="status-badge completed">Completed</span>
+        <app-volunteer-action [event]="e" />
       </div>
     }
   </section>

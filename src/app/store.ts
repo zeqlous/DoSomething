@@ -17,6 +17,12 @@ export interface Account {
   email: string;
 }
 
+/** A signup the visitor started before they had an account. */
+export interface PendingSignup {
+  eventId: number;
+  returnUrl: string;
+}
+
 // sessionStorage = cleared when the tab closes. Works in `ng serve` and on GitHub Pages.
 function load<T>(key: string, fallback: T): T {
   try {
@@ -30,6 +36,11 @@ function save(key: string, value: unknown) {
   try {
     sessionStorage.setItem(key, JSON.stringify(value));
   } catch { /* storage unavailable; state just lives in memory */ }
+}
+function remove(key: string) {
+  try {
+    sessionStorage.removeItem(key);
+  } catch { /* ignore */ }
 }
 
 @Injectable({ providedIn: 'root' })
@@ -49,12 +60,25 @@ export class Store {
   readonly account = signal<Account | null>(load<Account | null>('account', null));
   readonly joinedIds = signal<number[]>(load<number[]>('joined', []));
 
+  /** Signup the visitor started before creating an account. */
+  readonly pending = signal<PendingSignup | null>(load<PendingSignup | null>('pending', null));
+  /** Event to scroll to / highlight after returning from signup. */
+  readonly focusEventId = signal<number | null>(null);
+  /** Event waiting on the "cancel this shift?" confirmation. */
+  readonly cancelTarget = signal<VolunteerEvent | null>(null);
+  /** Current toast message, or null. */
+  readonly toast = signal<string | null>(null);
+  private toastTimer?: ReturnType<typeof setTimeout>;
+
   private todayIso = this.toIso(new Date());
 
   readonly openEvents = computed(() => this.events.filter(e => e.date >= this.todayIso));
   readonly pastEvents = computed(() => this.events.filter(e => e.date < this.todayIso));
+  /** Upcoming shifts only; past events never show up as "My Upcoming Shifts". */
   readonly myEvents = computed(() =>
-    this.events.filter(e => this.joinedIds().includes(e.id)).sort((a, b) => a.date.localeCompare(b.date))
+    this.events
+      .filter(e => this.joinedIds().includes(e.id) && e.date >= this.todayIso)
+      .sort((a, b) => a.date.localeCompare(b.date))
   );
 
   toIso(d: Date): string {
@@ -71,16 +95,78 @@ export class Store {
     return this.joinedIds().includes(id);
   }
 
-  /** Sign up / cancel. Sends visitors without an account to the signup page. */
-  toggle(id: number) {
+  isPast(e: VolunteerEvent) {
+    return e.date < this.todayIso;
+  }
+
+  // ---------- toast ----------
+
+  showToast(message: string) {
+    clearTimeout(this.toastTimer);
+    this.toast.set(message);
+    this.toastTimer = setTimeout(() => this.toast.set(null), 3500);
+  }
+
+  dismissToast() {
+    clearTimeout(this.toastTimer);
+    this.toast.set(null);
+  }
+
+  // ---------- volunteering ----------
+
+  /**
+   * Sign up for an event. Visitors without an account are sent to the signup
+   * page and brought back to this page (and this event) once they finish.
+   */
+  signUp(id: number) {
+    const event = this.events.find(e => e.id === id);
+    if (!event) return;
+
+    if (this.isPast(event)) {
+      this.showToast('That event has already happened, so sign-ups are closed.');
+      return;
+    }
     if (!this.account()) {
+      const pending: PendingSignup = { eventId: id, returnUrl: this.router.url };
+      this.pending.set(pending);
+      save('pending', pending);
       this.router.navigate(['/signup']);
       return;
     }
-    const next = this.isJoined(id) ? this.joinedIds().filter(x => x !== id) : [...this.joinedIds(), id];
+    if (this.isJoined(id)) return;
+
+    this.join(event);
+    this.showToast(`You're signed up for ${event.title}.`);
+  }
+
+  /** Step 1 of cancelling: open the confirmation dialog. */
+  requestCancel(id: number) {
+    const event = this.events.find(e => e.id === id);
+    if (event && this.isJoined(id)) this.cancelTarget.set(event);
+  }
+
+  /** Step 2: the visitor confirmed. */
+  confirmCancel() {
+    const event = this.cancelTarget();
+    if (!event) return;
+    const next = this.joinedIds().filter(x => x !== event.id);
+    this.joinedIds.set(next);
+    save('joined', next);
+    this.cancelTarget.set(null);
+    this.showToast(`You cancelled ${event.title}.`);
+  }
+
+  dismissCancel() {
+    this.cancelTarget.set(null);
+  }
+
+  private join(event: VolunteerEvent) {
+    const next = [...this.joinedIds(), event.id];
     this.joinedIds.set(next);
     save('joined', next);
   }
+
+  // ---------- account ----------
 
   register(name: string, email: string) {
     const acct = { name, email }; // password intentionally NOT stored
@@ -88,10 +174,46 @@ export class Store {
     save('account', acct);
   }
 
+  /** After signup: finish the volunteer signup they started and go back to it. */
+  finishSignup() {
+    const pending = this.pending();
+    this.clearPending();
+    if (!pending) {
+      this.router.navigate(['/']);
+      return;
+    }
+    const event = this.events.find(e => e.id === pending.eventId);
+    this.focusEventId.set(pending.eventId);
+    this.router.navigateByUrl(pending.returnUrl).then(() => {
+      if (!event) return;
+      if (this.isPast(event)) {
+        this.showToast('That event has already happened, so sign-ups are closed.');
+      } else if (!this.isJoined(event.id)) {
+        this.join(event);
+        this.showToast(`Account created. You're signed up for ${event.title}.`);
+      }
+    });
+  }
+
+  /** The visitor left the signup page without creating an account. */
+  abandonSignup() {
+    const url = this.pending()?.returnUrl ?? '/';
+    this.clearPending();
+    this.router.navigateByUrl(url);
+  }
+
+  private clearPending() {
+    this.pending.set(null);
+    remove('pending');
+  }
+
   logout() {
     this.account.set(null);
     this.joinedIds.set([]);
-    sessionStorage.removeItem('account');
-    sessionStorage.removeItem('joined');
+    this.cancelTarget.set(null);
+    this.clearPending();
+    remove('account');
+    remove('joined');
+    this.showToast('You have been logged out.');
   }
 }

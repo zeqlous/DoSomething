@@ -1,5 +1,4 @@
 import { Component, inject, signal } from '@angular/core';
-import { Router } from '@angular/router';
 import { Store } from './store';
 
 @Component({
@@ -9,7 +8,6 @@ import { Store } from './store';
   styleUrls: ['./signup.css']
 })
 export class SignupComponent {
-  private router = inject(Router);
   store = inject(Store);
 
   isSubmitted = signal(false);
@@ -25,7 +23,13 @@ export class SignupComponent {
     this.isSubmitted.set(true);
   }
 
-  goHome() {
-    this.router.navigate(['/']);
+  /** Back button: return to the page (and event) they came from. */
+  back() {
+    this.store.abandonSignup();
+  }
+
+  /** After creating the account: finish the signup they started, or go home. */
+  continue() {
+    this.store.finishSignup();
   }
 }

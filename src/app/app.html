@@ -5,9 +5,9 @@
     </div>
 
     <div class="user-auth">
-      <span class="user-icon">👤</span>
+      <span class="user-icon" aria-hidden="true">👤</span>
       @if (store.account(); as acct) {
-        <a routerLink="/schedule">{{ acct.name }}</a>
+        <span class="user-name">{{ acct.name }}</span>
         <button class="logout-btn" (click)="logout()">Log out</button>
       } @else {
         <a routerLink="/signup">Sign Up</a>
@@ -15,12 +15,33 @@
     </div>
   </div>
 
-  <div class="navbar-bottom">
-    <a routerLink="/" class="btn-opportunities">Home</a>
-    <a routerLink="/schedule" class="calendar-btn" title="Schedule">📅</a>
-  </div>
+  <nav class="navbar-bottom" aria-label="Main">
+    <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Opportunities</a>
+    <a routerLink="/schedule" class="nav-link" routerLinkActive="active">My Schedule</a>
+  </nav>
 </header>
 
 <main>
   <router-outlet></router-outlet>
 </main>
+
+@if (store.cancelTarget(); as target) {
+  <div class="modal-backdrop" (click)="store.dismissCancel()">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cancel-title" (click)="$event.stopPropagation()">
+      <h2 id="cancel-title">Cancel this shift?</h2>
+      <p><strong>{{ target.title }}</strong><br>{{ store.when(target) }}</p>
+      <p class="modal-note">Someone else may take your spot.</p>
+      <div class="modal-actions">
+        <button type="button" class="modal-keep" (click)="store.dismissCancel()">Keep my spot</button>
+        <button type="button" class="modal-confirm" (click)="store.confirmCancel()">Cancel shift</button>
+      </div>
+    </div>
+  </div>
+}
+
+@if (store.toast(); as message) {
+  <div class="toast" role="status" aria-live="polite">
+    <span>{{ message }}</span>
+    <button type="button" class="toast-close" (click)="store.dismissToast()" aria-label="Dismiss">×</button>
+  </div>
+}

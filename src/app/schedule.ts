@@ -1,5 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
 import { Store, VolunteerEvent } from './store';
+import { VolunteerActionComponent } from './volunteer-action';
 
 interface Cell {
   day: number;
@@ -11,6 +12,7 @@ interface Cell {
 @Component({
   selector: 'app-schedule',
   standalone: true,
+  imports: [VolunteerActionComponent],
   templateUrl: './schedule.html',
   styleUrls: ['./schedule.css']
 })
@@ -26,6 +28,18 @@ export class ScheduleComponent {
   weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   month = signal(new Date(new Date().getFullYear(), new Date().getMonth(), 1));
   selectedIso = signal<string | null>(null);
+
+  constructor() {
+    // Coming back from signup: open the day of the event the visitor picked.
+    const id = this.store.focusEventId();
+    const event = id === null ? undefined : this.store.events.find(e => e.id === id);
+    if (event) {
+      const d = new Date(event.date + 'T00:00:00');
+      this.month.set(new Date(d.getFullYear(), d.getMonth(), 1));
+      this.selectedIso.set(event.date);
+      this.store.focusEventId.set(null);
+    }
+  }
 
   monthLabel = computed(() =>
     this.month().toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
