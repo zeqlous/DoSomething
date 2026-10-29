@@ -78,8 +78,16 @@ export class Store {
   readonly myEvents = computed(() =>
     this.events
       .filter(e => this.joinedIds().includes(e.id) && e.date >= this.todayIso)
-      .sort((a, b) => a.date.localeCompare(b.date))
+      .sort((a, b) => a.date.localeCompare(b.date) || this.minutes(a.time) - this.minutes(b.time))
   );
+
+  /** "1:30 PM" -> minutes since midnight, for ordering events on the same day. */
+  private minutes(time: string): number {
+    const m = /^(\d{1,2}):(\d{2})\s*(AM|PM)$/i.exec(time.trim());
+    if (!m) return 0;
+    const h = (Number(m[1]) % 12) + (m[3].toUpperCase() === 'PM' ? 12 : 0);
+    return h * 60 + Number(m[2]);
+  }
 
   toIso(d: Date): string {
     const p = (n: number) => String(n).padStart(2, '0');

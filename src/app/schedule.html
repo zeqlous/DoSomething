@@ -6,6 +6,9 @@
         @for (item of navItems; track item.id) {
           <a href="#" class="nav-item" [class.active]="activeTab() === item.id" (click)="selectTab(item.id, $event)">
             {{ item.icon }} {{ item.label }}
+            @if (item.id === 'events' && store.myEvents().length > 0) {
+              <span class="count-badge" [attr.aria-label]="store.myEvents().length + ' upcoming shifts'">{{ store.myEvents().length }}</span>
+            }
           </a>
         }
       </nav>
@@ -14,9 +17,18 @@
     <main class="events-main">
       @if (activeTab() === 'calendar') {
         <div class="cal-header">
-          <button class="cal-nav" (click)="changeMonth(-1)" aria-label="Previous month">‹</button>
-          <h2 class="events-title">{{ monthLabel() }}</h2>
-          <button class="cal-nav" (click)="changeMonth(1)" aria-label="Next month">›</button>
+          <div class="cal-title-group">
+            <button class="cal-nav" (click)="changeMonth(-1)" aria-label="Previous month">‹</button>
+            <h2 class="events-title">{{ monthLabel() }}</h2>
+            <button class="cal-nav" (click)="changeMonth(1)" aria-label="Next month">›</button>
+          </div>
+          <button class="today-btn" (click)="goToToday()">Today</button>
+        </div>
+
+        <div class="legend" aria-label="Legend">
+          <span class="chip legend-chip" data-status="available">Available</span>
+          <span class="chip legend-chip" data-status="signed">✓ Signed up</span>
+          <span class="chip legend-chip" data-status="past">Past</span>
         </div>
 
         <div class="cal-grid">
@@ -28,7 +40,10 @@
               <button class="cal-cell" [class.today]="c.isToday" [class.selected]="selectedIso() === c.iso" (click)="selectDay(c)">
                 <span class="cal-day">{{ c.day }}</span>
                 @for (e of c.events; track e.id) {
-                  <span class="cal-dot" [class.joined]="store.isJoined(e.id)" [title]="e.title">{{ e.icon }}</span>
+                  <span class="chip" [attr.data-status]="statusOf(e)" [title]="e.title">
+                    <span class="chip-icon">{{ e.icon }}</span>
+                    <span class="chip-text">@if (statusOf(e) === 'signed') {✓ }{{ e.title }}</span>
+                  </span>
                 }
               </button>
             } @else {
@@ -37,8 +52,8 @@
           }
         </div>
 
-        @if (selectedIso()) {
-          <h3 class="day-heading">Opportunities on {{ selectedIso() }}</h3>
+        @if (selectedIso(); as iso) {
+          <h3 class="day-heading">{{ longDate(iso) }}@if (isToday(iso)) { (Today)}</h3>
           @for (e of selectedEvents(); track e.id) {
             <div class="my-event-card">
               <div class="event-icon-box">{{ e.icon }}</div>

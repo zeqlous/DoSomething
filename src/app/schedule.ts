@@ -38,7 +38,31 @@ export class ScheduleComponent {
       this.month.set(new Date(d.getFullYear(), d.getMonth(), 1));
       this.selectedIso.set(event.date);
       this.store.focusEventId.set(null);
+    } else {
+      // Otherwise open on today.
+      this.selectedIso.set(this.store.toIso(new Date()));
     }
+  }
+
+  statusOf(e: VolunteerEvent): 'past' | 'signed' | 'available' {
+    if (this.store.isPast(e)) return 'past';
+    return this.store.isJoined(e.id) ? 'signed' : 'available';
+  }
+
+  longDate(iso: string): string {
+    return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {
+      weekday: 'long', month: 'long', day: 'numeric'
+    });
+  }
+
+  isToday(iso: string): boolean {
+    return iso === this.store.toIso(new Date());
+  }
+
+  goToToday() {
+    const now = new Date();
+    this.month.set(new Date(now.getFullYear(), now.getMonth(), 1));
+    this.selectedIso.set(this.store.toIso(now));
   }
 
   monthLabel = computed(() =>

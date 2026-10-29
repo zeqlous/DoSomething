@@ -115,18 +115,6 @@ If we use API keys for a database at any point, they will go in a `.env` file wh
 
 ## Planned Improvements
 
-### Navigation
-- [ ] Remove the Home button from the Home page; use "Opportunities" and "My Schedule" links with an active-page highlight
-- [ ] Remove the duplicate schedule links (📅 icon and username)
-- [ ] Make the header sticky and mobile-friendly
-
-### Volunteer Button Logic
-- [ ] Three states: **Volunteer**, **✓ Signed Up** (with a small Cancel link), and **Completed** (no button for past events)
-- [ ] Confirm before cancelling a shift
-- [ ] Show a toast after signing up or cancelling
-- [ ] Return the user to the event after signup
-- [ ] Block signing up for past dates
-
 ### Calendar
 - [ ] Auto-select today and add a "Today" button
 - [ ] Show event titles in cells as colored chips (available / signed up / past), with a legend
