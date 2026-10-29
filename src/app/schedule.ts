@@ -1,4 +1,6 @@
 import { Component, computed, inject, signal } from '@angular/core';
+import { EventThumbComponent } from './event-thumb';
+import { IconComponent, IconName } from './icon';
 import { Store, VolunteerEvent } from './store';
 import { VolunteerActionComponent } from './volunteer-action';
 
@@ -12,7 +14,7 @@ interface Cell {
 @Component({
   selector: 'app-schedule',
   standalone: true,
-  imports: [VolunteerActionComponent],
+  imports: [VolunteerActionComponent, EventThumbComponent, IconComponent],
   templateUrl: './schedule.html',
   styleUrls: ['./schedule.css']
 })
@@ -20,9 +22,9 @@ export class ScheduleComponent {
   store = inject(Store);
 
   activeTab = signal<'calendar' | 'events'>('calendar');
-  navItems = [
-    { id: 'calendar' as const, label: 'Calendar View', icon: '📅' },
-    { id: 'events' as const, label: 'My Shifts', icon: '📋' }
+  navItems: { id: 'calendar' | 'events'; label: string; icon: IconName }[] = [
+    { id: 'calendar', label: 'Calendar View', icon: 'calendar' },
+    { id: 'events', label: 'My Shifts', icon: 'list' }
   ];
 
   weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
@@ -53,6 +55,12 @@ export class ScheduleComponent {
     return new Date(iso + 'T00:00:00').toLocaleDateString('en-US', {
       weekday: 'long', month: 'long', day: 'numeric'
     });
+  }
+
+  /** Screen-reader label for a calendar day. */
+  cellLabel(c: Cell): string {
+    const n = c.events.length;
+    return this.longDate(c.iso) + (n ? `, ${n} ${n === 1 ? 'event' : 'events'}` : ', no events');
   }
 
   isToday(iso: string): boolean {
@@ -89,8 +97,7 @@ export class ScheduleComponent {
     return iso ? this.store.events.filter(e => e.date === iso) : [];
   });
 
-  selectTab(id: 'calendar' | 'events', event: Event) {
-    event.preventDefault();
+  selectTab(id: 'calendar' | 'events') {
     this.activeTab.set(id);
   }
 

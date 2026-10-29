@@ -1,1 +1,99 @@
-/* You can add global styles to this file, and also import other style files */
+/* Global tokens + shared building blocks. Component CSS should only use these variables. */
+:root {
+  /* Palette (semantic) */
+  --primary: #1f3a5f;        /* header, links */
+  --primary-dark: #162b47;
+  --on-primary: #ffffff;
+  --on-primary-muted: #d6e0ee;
+  --accent: #ffbb00;         /* call-to-action */
+  --accent-hover: #f0b000;
+  --on-accent: #1a1a1a;
+  --green: #137333;          /* signed up */
+  --green-bg: #e6f4ea;
+  --blue: #1a56c4;           /* available */
+  --blue-bg: #e8f0fe;
+  --blue-text: #174ea6;
+  --gray: #5f6368;           /* past */
+  --gray-bg: #eceff1;
+  --gray-text: #455a64;
+  --red: #b00020;            /* cancel / errors */
+  --red-bg: #fdecef;
+
+  /* Surfaces + text */
+  --bg: #f7f7f5;
+  --surface: #ffffff;
+  --text: #1f2933;
+  --text-muted: #5f6368;
+  --border: #dcdcdc;
+  --border-strong: #bdbdbd;
+  --focus: #1a56c4;
+
+  /* Type, spacing, shape */
+  --font: system-ui, -apple-system, 'Segoe UI', Roboto, Arial, sans-serif;
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 24px;
+  --space-6: 40px;
+  --radius-sm: 4px;
+  --radius: 8px;
+  --radius-lg: 12px;
+  --radius-pill: 999px;
+  --container: 1100px;
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  font-family: var(--font);
+  font-size: 16px;
+  line-height: 1.45;
+  color: var(--text);
+  background: var(--bg);
+}
+
+app-root { display: flex; flex-direction: column; min-height: 100vh; }
+h1, h2, h3 { line-height: 1.2; }
+a { color: var(--primary); }
+button, input { font: inherit; }
+img { max-width: 100%; }
+:focus-visible { outline: 2px solid var(--focus); outline-offset: 2px; }
+
+/* One shared content width */
+.container {
+  width: 100%;
+  max-width: var(--container);
+  margin: 0 auto;
+  padding-left: var(--space-4);
+  padding-right: var(--space-4);
+}
+
+.muted { color: var(--text-muted); }
+.sr-only {
+  position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0;
+  overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; border: 0;
+}
+
+/* Buttons */
+.btn {
+  display: inline-flex; align-items: center; justify-content: center; gap: var(--space-2);
+  padding: 10px 18px; border: 1px solid transparent; border-radius: var(--radius);
+  font-weight: 700; text-decoration: none; white-space: nowrap; cursor: pointer;
+  transition: background-color 0.15s, border-color 0.15s, color 0.15s;
+}
+.btn-sm { padding: 6px 12px; font-size: 13px; }
+.btn-accent { background: var(--accent); color: var(--on-accent); }
+.btn-accent:hover { background: var(--accent-hover); }
+.btn-primary { background: var(--primary); color: var(--on-primary); }
+.btn-primary:hover { background: var(--primary-dark); }
+.btn-secondary { background: var(--surface); border-color: var(--border-strong); color: var(--text); }
+.btn-secondary:hover { background: var(--gray-bg); }
+.btn-danger-outline { background: transparent; border-color: var(--red); color: var(--red); }
+.btn-danger-outline:hover { background: var(--red-bg); }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition: none !important; animation: none !important; }
+}

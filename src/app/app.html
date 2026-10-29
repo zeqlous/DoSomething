@@ -1,23 +1,26 @@
 <header class="navbar">
   <div class="navbar-top">
-    <div class="logo">
-      <a routerLink="/">DoSomething.com</a>
-    </div>
+    <div class="container navbar-inner">
+      <a class="logo" routerLink="/">DoSomething.com</a>
 
-    <div class="user-auth">
-      <span class="user-icon" aria-hidden="true">👤</span>
-      @if (store.account(); as acct) {
-        <span class="user-name">{{ acct.name }}</span>
-        <button class="logout-btn" (click)="logout()">Log out</button>
-      } @else {
-        <a routerLink="/signup">Sign Up</a>
-      }
+      <div class="user-auth">
+        @if (store.account(); as acct) {
+          <span class="avatar" aria-hidden="true">{{ initials() }}</span>
+          <span class="user-name">{{ acct.name }}</span>
+          <button type="button" class="logout-btn" (click)="logout()">Log out</button>
+        } @else {
+          <a class="auth-link" routerLink="/login">Log in</a>
+          <a class="btn btn-sm btn-accent" routerLink="/signup">Sign Up</a>
+        }
+      </div>
     </div>
   </div>
 
   <nav class="navbar-bottom" aria-label="Main">
-    <a routerLink="/" class="nav-link" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">Opportunities</a>
-    <a routerLink="/schedule" class="nav-link" routerLinkActive="active">My Schedule</a>
+    <div class="container nav-inner">
+      <a routerLink="/" class="nav-link" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Opportunities</a>
+      <a routerLink="/schedule" class="nav-link" routerLinkActive="active" ariaCurrentWhenActive="page">My Schedule</a>
+    </div>
   </nav>
 </header>
 
@@ -25,15 +28,40 @@
   <router-outlet></router-outlet>
 </main>
 
+<footer class="footer">
+  <div class="container footer-inner">
+    <span>&copy; {{ year }} DoSomething.com</span>
+    <span>Volunteer opportunities in Lincoln, NE</span>
+  </div>
+</footer>
+
+@if (store.detailTarget(); as ev) {
+  <div class="modal-backdrop" (click)="store.closeDetails()">
+    <div class="modal modal-details" role="dialog" aria-modal="true" aria-labelledby="detail-title" (click)="$event.stopPropagation()">
+      <button type="button" class="modal-close" (click)="store.closeDetails()" aria-label="Close">
+        <app-icon name="x" [size]="18" />
+      </button>
+      <app-event-thumb [event]="ev" size="lg" />
+      <h2 id="detail-title">{{ ev.title }}</h2>
+      <p class="meta"><app-icon name="calendar" [size]="16" /> {{ store.when(ev) }}</p>
+      <p class="meta"><app-icon name="pin" [size]="16" /> {{ ev.location }}</p>
+      <p>{{ ev.details }}</p>
+      <div class="modal-actions">
+        <app-volunteer-action [event]="ev" />
+      </div>
+    </div>
+  </div>
+}
+
 @if (store.cancelTarget(); as target) {
-  <div class="modal-backdrop" (click)="store.dismissCancel()">
+  <div class="modal-backdrop modal-top" (click)="store.dismissCancel()">
     <div class="modal" role="dialog" aria-modal="true" aria-labelledby="cancel-title" (click)="$event.stopPropagation()">
       <h2 id="cancel-title">Cancel this shift?</h2>
       <p><strong>{{ target.title }}</strong><br>{{ store.when(target) }}</p>
       <p class="modal-note">Someone else may take your spot.</p>
       <div class="modal-actions">
-        <button type="button" class="modal-keep" (click)="store.dismissCancel()">Keep my spot</button>
-        <button type="button" class="modal-confirm" (click)="store.confirmCancel()">Cancel shift</button>
+        <button type="button" class="btn btn-accent" (click)="store.dismissCancel()">Keep my spot</button>
+        <button type="button" class="btn btn-danger-outline" (click)="store.confirmCancel()">Cancel shift</button>
       </div>
     </div>
   </div>
@@ -42,6 +70,6 @@
 @if (store.toast(); as message) {
   <div class="toast" role="status" aria-live="polite">
     <span>{{ message }}</span>
-    <button type="button" class="toast-close" (click)="store.dismissToast()" aria-label="Dismiss">×</button>
+    <button type="button" class="toast-close" (click)="store.dismissToast()" aria-label="Dismiss">&times;</button>
   </div>
 }

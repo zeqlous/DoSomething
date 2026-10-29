@@ -1,17 +1,38 @@
-.home-container { font-family: Arial, sans-serif; background-color: #f7f7f5; color: #333; }
-.hero-banner img { width: 100%; height: 220px; object-fit: cover; display: block; }
-.section-header { background-color: #dcdcdc; font-size: 18px; font-weight: bold; text-align: center; padding: 10px; margin-top: 20px; }
-.opportunities-section { max-width: 900px; margin: 0 auto; padding: 0 20px; }
-.opportunity-card { background: #fff; border: 1px solid #e0e0e0; border-radius: 8px; display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 15px 20px; margin: 12px 0; transition: box-shadow 0.3s, border-color 0.3s; }
-.opportunity-card.highlight { border-color: #ffbb00; box-shadow: 0 0 0 3px rgba(255, 187, 0, 0.35); }
-.card-left { display: flex; align-items: center; gap: 15px; }
-.cta-banner { background-color: #dbe2ef; display: flex; justify-content: center; align-items: center; gap: 20px; padding: 25px; margin-top: 30px; }
-.cta-button { background-color: #ffbb00; border: none; padding: 12px 25px; font-size: 16px; font-weight: bold; border-radius: 6px; cursor: pointer; }
-.thumb { width: 56px; height: 56px; object-fit: cover; border-radius: 8px; }
-.details { font-size: 13px; color: #666; margin: 4px 0 0; }
+.hero { position: relative; display: flex; align-items: center; min-height: 260px; overflow: hidden; background: var(--primary); color: #fff; }
+.hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.hero-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(22, 43, 71, 0.9), rgba(22, 43, 71, 0.5)); }
+.hero-content { position: relative; padding-top: var(--space-6); padding-bottom: var(--space-6); }
+.hero h1 { margin: 0 0 var(--space-2); font-size: clamp(28px, 5vw, 44px); }
+.hero p { margin: 0; max-width: 520px; font-size: 18px; }
+
+.cta-banner { background: var(--blue-bg); border-bottom: 1px solid var(--border); }
+.cta-inner { display: flex; justify-content: center; align-items: center; gap: var(--space-4); padding-top: var(--space-4); padding-bottom: var(--space-4); }
+.cta-text { font-weight: 700; color: var(--primary); }
+
+.section-header { margin: var(--space-5) 0 var(--space-2); padding-bottom: var(--space-2); border-bottom: 2px solid var(--border); font-size: 18px; font-weight: 800; }
+.section-toggle { display: flex; justify-content: space-between; align-items: center; width: 100%; border-top: 0; border-left: 0; border-right: 0; background: none; color: var(--text); text-align: left; cursor: pointer; }
+.section-toggle:hover { color: var(--primary); }
+.chevron { transition: transform 0.15s; }
+.section-toggle[aria-expanded='true'] .chevron { transform: rotate(180deg); }
+
+.shifts-section { padding-bottom: var(--space-2); }
+.shift-row { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-2); padding: var(--space-3); background: var(--surface); border: 1px solid var(--border); border-left: 4px solid var(--green); border-radius: var(--radius); color: var(--text); text-decoration: none; }
+.shift-row:hover { border-color: var(--green); }
+.shift-info { display: flex; flex-direction: column; }
+
+.opportunity-card { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); margin: var(--space-3) 0; padding: var(--space-4); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); cursor: pointer; transition: box-shadow 0.2s, border-color 0.2s; }
+.opportunity-card:hover { border-color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
+.opportunity-card.highlight { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 187, 0, 0.4); }
+.opportunity-card.past { background: #fafafa; }
+.opportunity-card.past app-event-thumb { filter: grayscale(1); opacity: 0.75; }
+.opportunity-card.past .card-title, .opportunity-card.past .when { color: var(--text-muted); }
+
+.card-left { display: flex; align-items: center; gap: var(--space-4); min-width: 0; }
+.card-info h3 { margin: 0; }
+.card-title { padding: 0; border: 0; background: none; color: var(--text); font-size: 17px; font-weight: 700; text-align: left; cursor: pointer; }
+.when, .details { margin: var(--space-1) 0 0; font-size: 14px; color: var(--text-muted); }
+
 @media (max-width: 600px) {
-  .opportunities-section { padding: 0 12px; }
   .opportunity-card { flex-direction: column; align-items: flex-start; }
-  .cta-banner { flex-direction: column; gap: 12px; }
+  .cta-inner { flex-direction: column; gap: var(--space-3); text-align: center; }
 }
-@media (prefers-reduced-motion: reduce) { .opportunity-card { transition: none; } }

@@ -1,10 +1,23 @@
-.signup-container { display: flex; justify-content: center; align-items: center; min-height: calc(100vh - 130px); background-color: #a4a084; }
-.signup-card, .confirmation-card { background-color: white; padding: 30px; width: 300px; border-radius: 6px; text-align: center; font-family: Arial, sans-serif; }
-.signup-card h1, .confirmation-card h1 { color: black; margin-bottom: 20px; font-size: 24px; }
-.signup-card form { display: flex; flex-direction: column; gap: 8px; margin-bottom: 15px; }
-.signup-card label { text-align: left; font-size: 12px; font-weight: bold; }
-.signup-card input { padding: 8px; border: 1px solid #ccc; border-radius: 4px; }
-.create-btn, .home-btn { background-color: #4763ff; color: white; border: none; padding: 10px; border-radius: 4px; cursor: pointer; width: 100%; margin-top: 10px; }
-.back-btn { background-color: #dddddd; border: none; border-radius: 4px; padding: 8px; cursor: pointer; width: 100%; }
-.error { color: #b00020; font-size: 12px; margin: 0; text-align: left; }
-.pending-note { font-size: 18px; font-weight: bold; line-height: 1.4; margin: 16px 0 4px; }
+.signup-container { display: flex; justify-content: center; align-items: flex-start; min-height: 60vh; padding: var(--space-6) var(--space-4); }
+.signup-card, .confirmation-card { width: 100%; max-width: 380px; padding: var(--space-5); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); box-shadow: 0 2px 10px rgba(0, 0, 0, 0.06); }
+.signup-card h1, .confirmation-card h1 { margin: 0 0 var(--space-4); font-size: 24px; text-align: center; }
+.confirmation-card { text-align: center; }
+
+.signup-card form { display: flex; flex-direction: column; gap: var(--space-3); margin-bottom: var(--space-3); }
+.field { display: flex; flex-direction: column; gap: var(--space-1); }
+.field label { font-size: 13px; font-weight: 700; }
+.field input { width: 100%; padding: 10px; border: 1px solid var(--border-strong); border-radius: var(--radius-sm); background: var(--surface); color: var(--text); }
+.field input:hover { border-color: var(--primary); }
+.field input[aria-invalid='true'] { border-color: var(--red); }
+.password-wrap { position: relative; }
+.password-wrap input { padding-right: 44px; }
+.toggle-pw { position: absolute; top: 50%; right: 6px; transform: translateY(-50%); display: inline-flex; padding: 6px; border: 0; border-radius: var(--radius-sm); background: none; color: var(--text-muted); cursor: pointer; }
+.toggle-pw:hover { color: var(--text); background: var(--gray-bg); }
+
+.error { margin: 0; font-size: 13px; color: var(--red); }
+.form-error { padding: var(--space-2) var(--space-3); background: var(--red-bg); border-radius: var(--radius-sm); }
+.full { width: 100%; }
+.signup-card .btn + .btn, .confirmation-card .btn + .btn { margin-top: var(--space-2); }
+.switch { margin: 0 0 var(--space-3); font-size: 14px; text-align: center; }
+.pending-note { margin: var(--space-4) 0; font-size: 18px; font-weight: 700; line-height: 1.4; }
+.confirmation-card .btn { margin-top: var(--space-2); }

@@ -1,5 +1,6 @@
 import { Injectable, computed, inject, signal } from '@angular/core';
 import { Router } from '@angular/router';
+import { IconName } from './icon';
 
 export interface VolunteerEvent {
   id: number;
@@ -8,13 +9,20 @@ export interface VolunteerEvent {
   time: string;
   location: string;
   details: string;
-  imageUrl: string;  // leave '' to show the emoji icon instead
-  icon: string;
+  imageUrl: string;  // leave '' to show the icon tile instead
+  icon: IconName;
 }
 
 export interface Account {
   name: string;
   email: string;
+}
+
+/** What is kept in the browser for each registered account (including their shifts). */
+interface StoredUser extends Account {
+  salt: string;
+  hash: string;
+  joined: number[];
 }
 
 /** A signup the visitor started before they had an account. */
@@ -23,24 +31,32 @@ export interface PendingSignup {
   returnUrl: string;
 }
 
-// sessionStorage = cleared when the tab closes. Works in `ng serve` and on GitHub Pages.
-function load<T>(key: string, fallback: T): T {
+// 'session' = cleared when the tab closes. 'local' = kept, so accounts survive logging out.
+type Area = 'session' | 'local';
+const area = (a: Area) => (a === 'local' ? localStorage : sessionStorage);
+
+function load<T>(key: string, fallback: T, a: Area = 'session'): T {
   try {
-    const raw = sessionStorage.getItem(key);
+    const raw = area(a).getItem(key);
     return raw ? (JSON.parse(raw) as T) : fallback;
   } catch {
     return fallback;
   }
 }
-function save(key: string, value: unknown) {
+function save(key: string, value: unknown, a: Area = 'session') {
   try {
-    sessionStorage.setItem(key, JSON.stringify(value));
+    area(a).setItem(key, JSON.stringify(value));
   } catch { /* storage unavailable; state just lives in memory */ }
 }
-function remove(key: string) {
+function remove(key: string, a: Area = 'session') {
   try {
-    sessionStorage.removeItem(key);
+    area(a).removeItem(key);
   } catch { /* ignore */ }
+}
+
+async function digest(text: string): Promise<string> {
+  const buf = await crypto.subtle.digest('SHA-256', new TextEncoder().encode(text));
+  return Array.from(new Uint8Array(buf), b => b.toString(16).padStart(2, '0')).join('');
 }
 
 @Injectable({ providedIn: 'root' })
@@ -49,16 +65,19 @@ export class Store {
 
   // Later: replace this array with a fetch() to your database / API.
   readonly events: VolunteerEvent[] = [
-    { id: 1, title: 'Community Garden Cleanup', date: '2026-09-10', time: '9:00 AM', location: 'Lincoln, NE', details: 'Weeding and mulching shared garden beds.', imageUrl: '', icon: '🌱' },
-    { id: 2, title: 'Dog Sitting', date: '2026-10-25', time: '2:00 PM', location: 'Lincoln, NE', details: 'Walk and feed dogs for a local shelter.', imageUrl: '', icon: '🐕' },
-    { id: 3, title: 'Food Bank Sorting', date: '2026-11-07', time: '10:00 AM', location: 'Lincoln, NE', details: 'Sort and box donated food.', imageUrl: '', icon: '🥫' },
-    { id: 4, title: 'Park Trail Cleanup', date: '2026-11-14', time: '1:00 PM', location: 'Lincoln, NE', details: 'Pick up litter along the trail.', imageUrl: '', icon: '🌳' },
-    { id: 5, title: 'Senior Center Game Day', date: '2026-11-14', time: '4:00 PM', location: 'Lincoln, NE', details: 'Play cards and board games with residents.', imageUrl: '', icon: '🎲' },
-    { id: 6, title: 'Holiday Toy Drive', date: '2026-12-05', time: '11:00 AM', location: 'Lincoln, NE', details: 'Collect and wrap toys for local families.', imageUrl: '', icon: '🎁' },
+    { id: 1, title: 'Community Garden Cleanup', date: '2026-09-10', time: '9:00 AM', location: 'Lincoln, NE', details: 'Weeding and mulching shared garden beds.', imageUrl: '', icon: 'sprout' },
+    { id: 2, title: 'Dog Sitting', date: '2026-10-25', time: '2:00 PM', location: 'Lincoln, NE', details: 'Walk and feed dogs for a local shelter.', imageUrl: '', icon: 'paw' },
+    { id: 3, title: 'Food Bank Sorting', date: '2026-11-07', time: '10:00 AM', location: 'Lincoln, NE', details: 'Sort and box donated food.', imageUrl: '', icon: 'package' },
+    { id: 4, title: 'Park Trail Cleanup', date: '2026-11-14', time: '1:00 PM', location: 'Lincoln, NE', details: 'Pick up litter along the trail.', imageUrl: '', icon: 'tree' },
+    { id: 5, title: 'Senior Center Game Day', date: '2026-11-14', time: '4:00 PM', location: 'Lincoln, NE', details: 'Play cards and board games with residents.', imageUrl: '', icon: 'dice' },
+    { id: 6, title: 'Holiday Toy Drive', date: '2026-12-05', time: '11:00 AM', location: 'Lincoln, NE', details: 'Collect and wrap toys for local families.', imageUrl: '', icon: 'gift' },
   ];
 
+  /** All registered accounts. Front-end demo only: a real app needs a server for passwords. */
+  private readonly users = signal<StoredUser[]>(load<StoredUser[]>('users', [], 'local'));
+
   readonly account = signal<Account | null>(load<Account | null>('account', null));
-  readonly joinedIds = signal<number[]>(load<number[]>('joined', []));
+  readonly joinedIds = signal<number[]>(this.joinedFor(load<Account | null>('account', null)?.email));
 
   /** Signup the visitor started before creating an account. */
   readonly pending = signal<PendingSignup | null>(load<PendingSignup | null>('pending', null));
@@ -66,6 +85,8 @@ export class Store {
   readonly focusEventId = signal<number | null>(null);
   /** Event waiting on the "cancel this shift?" confirmation. */
   readonly cancelTarget = signal<VolunteerEvent | null>(null);
+  /** Event shown in the details dialog. */
+  readonly detailTarget = signal<VolunteerEvent | null>(null);
   /** Current toast message, or null. */
   readonly toast = signal<string | null>(null);
   private toastTimer?: ReturnType<typeof setTimeout>;
@@ -120,6 +141,23 @@ export class Store {
     this.toast.set(null);
   }
 
+  // ---------- details dialog ----------
+
+  openDetails(id: number) {
+    const event = this.events.find(e => e.id === id);
+    if (event) this.detailTarget.set(event);
+  }
+
+  closeDetails() {
+    this.detailTarget.set(null);
+  }
+
+  /** Escape key: close the top-most dialog only. */
+  dismissOverlay() {
+    if (this.cancelTarget()) this.cancelTarget.set(null);
+    else this.detailTarget.set(null);
+  }
+
   // ---------- volunteering ----------
 
   /**
@@ -138,6 +176,7 @@ export class Store {
       const pending: PendingSignup = { eventId: id, returnUrl: this.router.url };
       this.pending.set(pending);
       save('pending', pending);
+      this.detailTarget.set(null);
       this.router.navigate(['/signup']);
       return;
     }
@@ -157,9 +196,7 @@ export class Store {
   confirmCancel() {
     const event = this.cancelTarget();
     if (!event) return;
-    const next = this.joinedIds().filter(x => x !== event.id);
-    this.joinedIds.set(next);
-    save('joined', next);
+    this.persistJoined(this.joinedIds().filter(x => x !== event.id));
     this.cancelTarget.set(null);
     this.showToast(`You cancelled ${event.title}.`);
   }
@@ -169,36 +206,82 @@ export class Store {
   }
 
   private join(event: VolunteerEvent) {
-    const next = [...this.joinedIds(), event.id];
+    this.persistJoined([...this.joinedIds(), event.id]);
+  }
+
+  private joinedFor(email?: string): number[] {
+    return this.users().find(u => u.email === email)?.joined ?? [];
+  }
+
+  /** Update the signed-in list and keep it on the account so it survives logging out. */
+  private persistJoined(next: number[]) {
     this.joinedIds.set(next);
-    save('joined', next);
+    const email = this.account()?.email;
+    if (email) this.setUsers(this.users().map(u => (u.email === email ? { ...u, joined: next } : u)));
   }
 
   // ---------- account ----------
 
-  register(name: string, email: string) {
-    const acct = { name, email }; // password intentionally NOT stored
-    this.account.set(acct);
-    save('account', acct);
+  private setUsers(next: StoredUser[]) {
+    this.users.set(next);
+    save('users', next, 'local');
   }
 
-  /** After signup: finish the volunteer signup they started and go back to it. */
-  finishSignup() {
+  private startSession(user: StoredUser) {
+    const acct: Account = { name: user.name, email: user.email };
+    this.account.set(acct);
+    save('account', acct);
+    this.joinedIds.set(user.joined);
+  }
+
+  /** Create an account and sign in. */
+  async register(name: string, email: string, password: string): Promise<'ok' | 'exists' | 'error'> {
+    const key = email.trim().toLowerCase();
+    if (this.users().some(u => u.email === key)) return 'exists';
+    try {
+      const salt = crypto.randomUUID();
+      const user: StoredUser = { name, email: key, salt, hash: await digest(salt + password), joined: [] };
+      this.setUsers([...this.users(), user]);
+      this.startSession(user);
+      return 'ok';
+    } catch {
+      return 'error';
+    }
+  }
+
+  /** Sign in to an existing account. Returns false when the email/password don't match. */
+  async login(email: string, password: string): Promise<boolean> {
+    const user = this.users().find(u => u.email === email.trim().toLowerCase());
+    if (!user) return false;
+    try {
+      if ((await digest(user.salt + password)) !== user.hash) return false;
+    } catch {
+      return false;
+    }
+    this.startSession(user);
+    return true;
+  }
+
+  /**
+   * After signup/login: finish the volunteer signup they started and go back to it
+   * (or to `destination`, e.g. '/schedule'). With nothing pending, go to `destination` or home.
+   */
+  finishSignup(destination?: string) {
     const pending = this.pending();
     this.clearPending();
     if (!pending) {
-      this.router.navigate(['/']);
+      this.router.navigateByUrl(destination ?? '/');
       return;
     }
     const event = this.events.find(e => e.id === pending.eventId);
     this.focusEventId.set(pending.eventId);
-    this.router.navigateByUrl(pending.returnUrl).then(() => {
+    this.router.navigateByUrl(destination ?? pending.returnUrl).then(() => {
       if (!event) return;
       if (this.isPast(event)) {
         this.showToast('That event has already happened, so sign-ups are closed.');
       } else if (!this.isJoined(event.id)) {
         this.join(event);
-        this.showToast(`Account created. You're signed up for ${event.title}.`);
+        this.showToast(`You're signed up for ${event.title}.`);
       }
     });
   }
@@ -215,13 +298,14 @@ export class Store {
     remove('pending');
   }
 
+  /** Ends the session only; the account and its shifts stay saved for the next login. */
   logout() {
     this.account.set(null);
     this.joinedIds.set([]);
     this.cancelTarget.set(null);
+    this.detailTarget.set(null);
     this.clearPending();
     remove('account');
-    remove('joined');
     this.showToast('You have been logged out.');
   }
 }

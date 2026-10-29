@@ -2,32 +2,33 @@
   <div class="schedule-layout">
     <aside class="sidebar">
       <h2>Volunteer Hub</h2>
-      <nav class="hub-nav">
+      <nav class="hub-nav" aria-label="Volunteer hub">
         @for (item of navItems; track item.id) {
-          <a href="#" class="nav-item" [class.active]="activeTab() === item.id" (click)="selectTab(item.id, $event)">
-            {{ item.icon }} {{ item.label }}
+          <button type="button" class="nav-item" [class.active]="activeTab() === item.id" [attr.aria-current]="activeTab() === item.id ? 'page' : null" (click)="selectTab(item.id)">
+            <app-icon [name]="item.icon" [size]="18" />
+            <span>{{ item.label }}</span>
             @if (item.id === 'events' && store.myEvents().length > 0) {
-              <span class="count-badge" [attr.aria-label]="store.myEvents().length + ' upcoming shifts'">{{ store.myEvents().length }}</span>
+              <span class="count-badge">{{ store.myEvents().length }}<span class="sr-only"> upcoming shifts</span></span>
             }
-          </a>
+          </button>
         }
       </nav>
     </aside>
 
-    <main class="events-main">
+    <section class="events-main">
       @if (activeTab() === 'calendar') {
         <div class="cal-header">
           <div class="cal-title-group">
-            <button class="cal-nav" (click)="changeMonth(-1)" aria-label="Previous month">‹</button>
+            <button type="button" class="cal-nav" (click)="changeMonth(-1)" aria-label="Previous month">&lsaquo;</button>
             <h2 class="events-title">{{ monthLabel() }}</h2>
-            <button class="cal-nav" (click)="changeMonth(1)" aria-label="Next month">›</button>
+            <button type="button" class="cal-nav" (click)="changeMonth(1)" aria-label="Next month">&rsaquo;</button>
           </div>
-          <button class="today-btn" (click)="goToToday()">Today</button>
+          <button type="button" class="btn btn-sm btn-accent" (click)="goToToday()">Today</button>
         </div>
 
         <div class="legend" aria-label="Legend">
           <span class="chip legend-chip" data-status="available">Available</span>
-          <span class="chip legend-chip" data-status="signed">✓ Signed up</span>
+          <span class="chip legend-chip" data-status="signed"><app-icon name="check" [size]="12" /> Signed up</span>
           <span class="chip legend-chip" data-status="past">Past</span>
         </div>
 
@@ -37,12 +38,15 @@
           }
           @for (c of cells(); track $index) {
             @if (c) {
-              <button class="cal-cell" [class.today]="c.isToday" [class.selected]="selectedIso() === c.iso" (click)="selectDay(c)">
+              <button type="button" class="cal-cell" [class.today]="c.isToday" [class.selected]="selectedIso() === c.iso" [attr.aria-label]="cellLabel(c)" [attr.aria-pressed]="selectedIso() === c.iso" (click)="selectDay(c)">
                 <span class="cal-day">{{ c.day }}</span>
                 @for (e of c.events; track e.id) {
-                  <span class="chip" [attr.data-status]="statusOf(e)" [title]="e.title">
-                    <span class="chip-icon">{{ e.icon }}</span>
-                    <span class="chip-text">@if (statusOf(e) === 'signed') {✓ }{{ e.title }}</span>
+                  <span class="chip" [attr.data-status]="statusOf(e)" [title]="e.title + ' (' + statusOf(e) + ')'">
+                    @if (statusOf(e) === 'signed') {
+                      <app-icon name="check" [size]="12" />
+                    }
+                    <app-icon [name]="e.icon" [size]="12" />
+                    <span class="chip-text">{{ e.title }}</span>
                   </span>
                 }
               </button>
@@ -55,37 +59,41 @@
         @if (selectedIso(); as iso) {
           <h3 class="day-heading">{{ longDate(iso) }}@if (isToday(iso)) { (Today)}</h3>
           @for (e of selectedEvents(); track e.id) {
-            <div class="my-event-card">
-              <div class="event-icon-box">{{ e.icon }}</div>
+            <div class="my-event-card" (click)="store.openDetails(e.id)">
+              <app-event-thumb [event]="e" size="sm" />
               <div class="event-details">
-                <h3 class="event-title">{{ e.title }}</h3>
+                <h3 class="event-title"><button type="button" class="event-title-btn">{{ e.title }}</button></h3>
                 <p class="event-date">{{ store.when(e) }}</p>
                 <p class="event-location">{{ e.location }}</p>
               </div>
-              <app-volunteer-action [event]="e" />
+              <div class="card-action" (click)="$event.stopPropagation()">
+                <app-volunteer-action [event]="e" />
+              </div>
             </div>
           } @empty {
-            <p>Nothing scheduled this day.</p>
+            <p class="muted">Nothing scheduled this day.</p>
           }
         }
       } @else {
         <h2 class="events-title">My Upcoming Shifts</h2>
         <div class="events-list">
           @for (e of store.myEvents(); track e.id) {
-            <div class="my-event-card">
-              <div class="event-icon-box">{{ e.icon }}</div>
+            <div class="my-event-card" (click)="store.openDetails(e.id)">
+              <app-event-thumb [event]="e" size="sm" />
               <div class="event-details">
-                <h3 class="event-title">{{ e.title }}</h3>
+                <h3 class="event-title"><button type="button" class="event-title-btn">{{ e.title }}</button></h3>
                 <p class="event-date">{{ store.when(e) }}</p>
                 <p class="event-location">{{ e.location }}</p>
               </div>
-              <app-volunteer-action [event]="e" />
+              <div class="card-action" (click)="$event.stopPropagation()">
+                <app-volunteer-action [event]="e" />
+              </div>
             </div>
           } @empty {
-            <p>You haven't signed up for anything yet. Pick a day on the calendar or head to Home.</p>
+            <p class="muted">You haven't signed up for anything yet. Pick a day on the calendar or head to Opportunities.</p>
           }
         </div>
       }
-    </main>
+    </section>
   </div>
 </div>

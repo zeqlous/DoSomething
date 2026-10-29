@@ -1,49 +1,78 @@
 <div class="home-container">
-  <div class="hero-banner">
-    <img src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&w=1200&q=80" alt="Volunteers" />
-  </div>
-
-  <section class="opportunities-section">
-    <div class="section-header">Open Opportunities</div>
-    @for (e of store.openEvents(); track e.id) {
-      <div class="opportunity-card" [id]="'event-' + e.id" [class.highlight]="store.focusEventId() === e.id">
-        <div class="card-left">
-          @if (e.imageUrl) {
-            <img class="thumb" [src]="e.imageUrl" [alt]="e.title" />
-          } @else {
-            <span class="heart-icon">{{ e.icon }}</span>
-          }
-          <div class="card-info">
-            <h3>{{ e.title }}</h3>
-            <p>{{ store.when(e) }} - {{ e.location }}</p>
-            <p class="details">{{ e.details }}</p>
-          </div>
-        </div>
-        <app-volunteer-action [event]="e" />
-      </div>
-    } @empty {
-      <p>No open opportunities right now.</p>
-    }
-
-    <div class="section-header">Past Opportunities</div>
-    @for (e of store.pastEvents(); track e.id) {
-      <div class="opportunity-card">
-        <div class="card-left">
-          <span class="heart-icon">{{ e.icon }}</span>
-          <div class="card-info">
-            <h3>{{ e.title }}</h3>
-            <p>{{ store.when(e) }} - {{ e.location }}</p>
-          </div>
-        </div>
-        <app-volunteer-action [event]="e" />
-      </div>
-    }
+  <section class="hero">
+    <img class="hero-img" src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&w=1200&q=80" alt="" />
+    <div class="hero-overlay"></div>
+    <div class="container hero-content">
+      <h1>Lend a hand in Lincoln</h1>
+      <p>Pick a shift, sign up in a few clicks, and keep every commitment in one schedule.</p>
+    </div>
   </section>
 
-  @if (!store.account()) {
+  @if (store.account()) {
+    <section class="container shifts-section" aria-labelledby="shifts-heading">
+      <h2 id="shifts-heading" class="section-header">Your upcoming shifts</h2>
+      @for (e of nextShifts(); track e.id) {
+        <a class="shift-row" routerLink="/schedule">
+          <app-event-thumb [event]="e" size="sm" />
+          <span class="shift-info">
+            <strong>{{ e.title }}</strong>
+            <span class="muted">{{ store.when(e) }}</span>
+          </span>
+        </a>
+      } @empty {
+        <p class="muted">You haven't signed up for anything yet. Pick an opportunity below.</p>
+      }
+      @if (store.myEvents().length > nextShifts().length) {
+        <a routerLink="/schedule">See all {{ store.myEvents().length }} shifts</a>
+      }
+    </section>
+  } @else {
     <div class="cta-banner">
-      <span class="cta-text">Start Your Journey:</span>
-      <button class="cta-button" routerLink="/signup">Sign Up Today!</button>
+      <div class="container cta-inner">
+        <span class="cta-text">Start your journey: create an account to sign up for shifts.</span>
+        <a class="btn btn-accent" routerLink="/signup">Sign Up Today!</a>
+      </div>
     </div>
   }
+
+  <ng-template #card let-e let-past="past">
+    <article class="opportunity-card" [class.past]="past" [id]="'event-' + e.id" [class.highlight]="store.focusEventId() === e.id" (click)="store.openDetails(e.id)">
+      <div class="card-left">
+        <app-event-thumb [event]="e" size="md" />
+        <div class="card-info">
+          <h3><button type="button" class="card-title">{{ e.title }}</button></h3>
+          <p class="when">{{ store.when(e) }} - {{ e.location }}</p>
+          @if (!past) {
+            <p class="details">{{ e.details }}</p>
+          }
+        </div>
+      </div>
+      <div class="card-action" (click)="$event.stopPropagation()">
+        <app-volunteer-action [event]="e" />
+      </div>
+    </article>
+  </ng-template>
+
+  <section class="container opportunities-section">
+    <h2 class="section-header">Open Opportunities</h2>
+    @for (e of store.openEvents(); track e.id) {
+      <ng-container *ngTemplateOutlet="card; context: { $implicit: e, past: false }" />
+    } @empty {
+      <p class="muted">No open opportunities right now.</p>
+    }
+
+    @if (store.pastEvents().length) {
+      <button type="button" class="section-header section-toggle" [attr.aria-expanded]="showPast()" aria-controls="past-list" (click)="showPast.set(!showPast())">
+        <span>Past Opportunities ({{ store.pastEvents().length }})</span>
+        <app-icon class="chevron" name="chevron" />
+      </button>
+      @if (showPast()) {
+        <div id="past-list">
+          @for (e of store.pastEvents(); track e.id) {
+            <ng-container *ngTemplateOutlet="card; context: { $implicit: e, past: true }" />
+          }
+        </div>
+      }
+    }
+  </section>
 </div>
