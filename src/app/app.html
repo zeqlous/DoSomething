@@ -7,9 +7,9 @@
         @if (store.account(); as acct) {
           <span class="avatar" aria-hidden="true">{{ initials() }}</span>
           <span class="user-name">{{ acct.name }}</span>
-          <button type="button" class="logout-btn" (click)="logout()">Log out</button>
+          <button type="button" class="logout-btn" (click)="logout()">Log Out</button>
         } @else {
-          <a class="auth-link" routerLink="/login">Log in</a>
+          <a class="auth-link" routerLink="/login">Log In</a>
           <a class="btn btn-sm btn-accent" routerLink="/signup">Sign Up</a>
         }
       </div>
