@@ -1,0 +1,13 @@
+.profile-container { padding-top: var(--space-5); padding-bottom: var(--space-6); max-width: 720px; }
+.profile-head { display: flex; align-items: center; gap: var(--space-4); }
+.profile-head h1 { margin: 0 0 var(--space-1); }
+.profile-head p { margin: 0; }
+.avatar-lg { display: inline-flex; align-items: center; justify-content: center; width: 72px; height: 72px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-size: 26px; font-weight: 800; }
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap: var(--space-3); margin: 0 0 var(--space-3); }
+.stat { padding: var(--space-3); background: var(--blue-bg); border-radius: var(--radius-lg); text-align: center; }
+.stat dt { font-size: 13px; font-weight: 700; color: var(--text-muted); }
+.stat dd { margin: var(--space-1) 0 0; font-size: 28px; font-weight: 800; color: var(--primary); }
+.org-list { margin: 0; padding: 0; list-style: none; }
+.org-row { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--border); }
+.signed-out { padding: var(--space-6) 0; text-align: center; }
+.signed-out .btn { margin: 0 var(--space-1); }

@@ -3,7 +3,7 @@ import { Component, input } from '@angular/core';
 export type IconName =
   | 'sprout' | 'paw' | 'package' | 'tree' | 'dice' | 'gift'
   | 'calendar' | 'list' | 'check' | 'x' | 'pin'
-  | 'eye' | 'eye-off' | 'image' | 'chevron';
+  | 'eye' | 'eye-off' | 'chevron';
 
 /** One consistent outline icon set (24px grid, 2px stroke), drawn inline so there is nothing to install. */
 @Component({
@@ -61,10 +61,6 @@ export type IconName =
         @case ('eye-off') {
           <path d="M9.9 4.2A10 10 0 0 1 12 4c6.5 0 10 8 10 8a17 17 0 0 1-2.2 3.2M6.6 6.6A17 17 0 0 0 2 12s3.5 8 10 8a10 10 0 0 0 5.4-1.6" />
           <path d="m2 2 20 20" />
-        }
-        @case ('image') {
-          <rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" />
-          <path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" />
         }
         @case ('chevron') { <path d="m6 9 6 6 6-6" /> }
       }

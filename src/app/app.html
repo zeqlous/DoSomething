@@ -1,3 +1,4 @@
+<a class="skip-link" href="#main" (click)="skipToMain($event)">Skip to main content</a>
 <header class="navbar">
   <div class="navbar-top">
     <div class="container navbar-inner">
@@ -5,9 +6,11 @@
 
       <div class="user-auth">
         @if (store.account(); as acct) {
-          <span class="avatar" aria-hidden="true">{{ initials() }}</span>
-          <span class="user-name">{{ acct.name }}</span>
-          <button type="button" class="logout-btn" (click)="logout()">Log Out</button>
+          <a class="user-link" routerLink="/profile" aria-label="Your profile: {{ acct.name }}">
+            <span class="avatar" aria-hidden="true">{{ initials() }}</span>
+            <span class="user-name">{{ acct.name }}</span>
+          </a>
+          <button type="button" class="logout-btn" (click)="logout()">Log out</button>
         } @else {
           <a class="auth-link" routerLink="/login">Log In</a>
           <a class="btn btn-sm btn-accent" routerLink="/signup">Sign Up</a>
@@ -19,12 +22,15 @@
   <nav class="navbar-bottom" aria-label="Main">
     <div class="container nav-inner">
       <a routerLink="/" class="nav-link" routerLinkActive="active" ariaCurrentWhenActive="page" [routerLinkActiveOptions]="{ exact: true }">Opportunities</a>
-      <a routerLink="/schedule" class="nav-link" routerLinkActive="active" ariaCurrentWhenActive="page">My Schedule</a>
+            <a routerLink="/schedule" class="nav-link" routerLinkActive="active" ariaCurrentWhenActive="page">My Schedule</a>
+      @if (store.account()) {
+        <a routerLink="/profile" class="nav-link" routerLinkActive="active" ariaCurrentWhenActive="page">Profile</a>
+      }
     </div>
   </nav>
 </header>
 
-<main>
+<main id="main" tabindex="-1">
   <router-outlet></router-outlet>
 </main>
 
@@ -38,17 +44,16 @@
 @if (store.detailTarget(); as ev) {
   <div class="modal-backdrop" (click)="store.closeDetails()">
     <div class="modal modal-details" role="dialog" aria-modal="true" aria-labelledby="detail-title" (click)="$event.stopPropagation()">
-      <button type="button" class="modal-close" (click)="store.closeDetails()" aria-label="Close">
+      <button type="button" class="modal-close" data-autofocus (click)="store.closeDetails()" aria-label="Close event details">
         <app-icon name="x" [size]="18" />
       </button>
       <app-event-thumb [event]="ev" size="lg" />
       <h2 id="detail-title">{{ ev.title }}</h2>
-      <p class="meta"><app-icon name="calendar" [size]="16" /> {{ store.when(ev) }}</p>
-      <p class="meta"><app-icon name="pin" [size]="16" /> {{ ev.location }}</p>
+      <p><strong>{{ ev.org }}</strong> · {{ ev.category }}</p>
+      <p class="meta"><app-icon name="calendar" [size]="16" /> <span><span class="sr-only">Date and time: </span>{{ store.when(ev) }} ({{ store.durationHours(ev) }} hr)</span></p>
+      <p class="meta"><app-icon name="pin" [size]="16" /> <span><span class="sr-only">Location: </span>{{ ev.venue }}, {{ ev.location }}</span></p>
       <p>{{ ev.details }}</p>
-      <div class="modal-actions">
-        <app-volunteer-action [event]="ev" />
-      </div>
+      <div class="modal-actions"><app-volunteer-action [event]="ev" /></div>
     </div>
   </div>
 }
@@ -60,7 +65,7 @@
       <p><strong>{{ target.title }}</strong><br>{{ store.when(target) }}</p>
       <p class="modal-note">Someone else may take your spot.</p>
       <div class="modal-actions">
-        <button type="button" class="btn btn-accent" (click)="store.dismissCancel()">Keep my spot</button>
+        <button type="button" class="btn btn-accent" data-autofocus (click)="store.dismissCancel()">Keep my spot</button>
         <button type="button" class="btn btn-danger-outline" (click)="store.confirmCancel()">Cancel shift</button>
       </div>
     </div>
@@ -68,7 +73,7 @@
 }
 
 @if (store.toast(); as message) {
-  <div class="toast" role="status" aria-live="polite">
+  <div class="toast" role="status">
     <span>{{ message }}</span>
     <button type="button" class="toast-close" (click)="store.dismissToast()" aria-label="Dismiss">&times;</button>
   </div>

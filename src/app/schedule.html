@@ -1,4 +1,5 @@
 <div class="schedule-container">
+  <h1 class="sr-only">My Schedule</h1>
   <div class="schedule-layout">
     <aside class="sidebar">
       <h2>Volunteer Hub</h2>
@@ -16,17 +17,32 @@
     </aside>
 
     <section class="events-main">
+      <ng-template #shiftCard let-e let-past="past">
+        <article class="my-event-card" [class.is-past]="past" (click)="store.openDetails(e.id)">
+          <app-event-thumb [event]="e" size="sm" />
+          <div class="event-details">
+            <h3 class="event-title"><button type="button" class="event-title-btn">{{ e.title }}</button></h3>
+            <p class="event-org"><strong>{{ e.org }}</strong> <span class="tag">{{ e.category }}</span></p>
+            <p class="event-date">{{ store.when(e) }}</p>
+            <p class="event-location">{{ e.venue }}, {{ e.location }}</p>
+          </div>
+          <div class="card-action" (click)="$event.stopPropagation()">
+            <app-volunteer-action [event]="e" />
+          </div>
+        </article>
+      </ng-template>
+
       @if (activeTab() === 'calendar') {
         <div class="cal-header">
           <div class="cal-title-group">
             <button type="button" class="cal-nav" (click)="changeMonth(-1)" aria-label="Previous month">&lsaquo;</button>
-            <h2 class="events-title">{{ monthLabel() }}</h2>
+            <h2 class="events-title" aria-live="polite">{{ monthLabel() }}</h2>
             <button type="button" class="cal-nav" (click)="changeMonth(1)" aria-label="Next month">&rsaquo;</button>
           </div>
           <button type="button" class="btn btn-sm btn-accent" (click)="goToToday()">Today</button>
         </div>
 
-        <div class="legend" aria-label="Legend">
+        <div class="legend" role="group" aria-label="Legend">
           <span class="chip legend-chip" data-status="available">Available</span>
           <span class="chip legend-chip" data-status="signed"><app-icon name="check" [size]="12" /> Signed up</span>
           <span class="chip legend-chip" data-status="past">Past</span>
@@ -40,14 +56,17 @@
             @if (c) {
               <button type="button" class="cal-cell" [class.today]="c.isToday" [class.selected]="selectedIso() === c.iso" [attr.aria-label]="cellLabel(c)" [attr.aria-pressed]="selectedIso() === c.iso" (click)="selectDay(c)">
                 <span class="cal-day">{{ c.day }}</span>
-                @for (e of c.events; track e.id) {
-                  <span class="chip" [attr.data-status]="statusOf(e)" [title]="e.title + ' (' + statusOf(e) + ')'">
+                @for (e of c.visible; track e.id) {
+                  <span class="chip" [attr.data-status]="statusOf(e)" [title]="e.title + ' (' + statusLabel(e) + ')'" aria-hidden="true">
                     @if (statusOf(e) === 'signed') {
                       <app-icon name="check" [size]="12" />
                     }
                     <app-icon [name]="e.icon" [size]="12" />
                     <span class="chip-text">{{ e.title }}</span>
                   </span>
+                }
+                @if (c.extra > 0) {
+                  <span class="more" aria-hidden="true">+{{ c.extra }} more</span>
                 }
               </button>
             } @else {
@@ -59,38 +78,49 @@
         @if (selectedIso(); as iso) {
           <h3 class="day-heading">{{ longDate(iso) }}@if (isToday(iso)) { (Today)}</h3>
           @for (e of selectedEvents(); track e.id) {
-            <div class="my-event-card" (click)="store.openDetails(e.id)">
-              <app-event-thumb [event]="e" size="sm" />
-              <div class="event-details">
-                <h3 class="event-title"><button type="button" class="event-title-btn">{{ e.title }}</button></h3>
-                <p class="event-date">{{ store.when(e) }}</p>
-                <p class="event-location">{{ e.location }}</p>
-              </div>
-              <div class="card-action" (click)="$event.stopPropagation()">
-                <app-volunteer-action [event]="e" />
-              </div>
-            </div>
+            <ng-container *ngTemplateOutlet="shiftCard; context: { $implicit: e, past: false }" />
           } @empty {
             <p class="muted">Nothing scheduled this day.</p>
           }
         }
       } @else {
-        <h2 class="events-title">My Upcoming Shifts</h2>
+        <h2 class="events-title shifts-title">{{ activeTab() === 'past' ? 'Past Shifts' : 'My Upcoming Shifts' }}</h2>
+
+        <div class="filters" role="search" aria-label="Filter my shifts">
+          <div class="filter-field grow">
+            <label for="shift-q">Search my shifts</label>
+            <input id="shift-q" type="search" placeholder="Title or organization" [value]="shiftQuery()" (input)="shiftQuery.set($any($event.target).value)" />
+          </div>
+          <div class="filter-field">
+            <label for="shift-org">Organization</label>
+            <select id="shift-org" (change)="shiftOrg.set($any($event.target).value)">
+              <option value="all" [selected]="shiftOrg() === 'all'">All organizations</option>
+              @for (o of myOrgs(); track o) {
+                <option [value]="o" [selected]="shiftOrg() === o">{{ o }}</option>
+              }
+            </select>
+          </div>
+          @if (filtersActive()) {
+            <button type="button" class="btn btn-sm btn-secondary" (click)="clearFilters()">Clear filters</button>
+          }
+        </div>
+        <p class="sr-only" role="status">{{ shownCount() }} shifts shown</p>
+
         <div class="events-list">
-          @for (e of store.myEvents(); track e.id) {
-            <div class="my-event-card" (click)="store.openDetails(e.id)">
-              <app-event-thumb [event]="e" size="sm" />
-              <div class="event-details">
-                <h3 class="event-title"><button type="button" class="event-title-btn">{{ e.title }}</button></h3>
-                <p class="event-date">{{ store.when(e) }}</p>
-                <p class="event-location">{{ e.location }}</p>
-              </div>
-              <div class="card-action" (click)="$event.stopPropagation()">
-                <app-volunteer-action [event]="e" />
-              </div>
-            </div>
-          } @empty {
-            <p class="muted">You haven't signed up for anything yet. Pick a day on the calendar or head to Opportunities.</p>
+          @if (activeTab() === 'events') {
+            @for (e of upcomingShifts(); track e.id) {
+              <ng-container *ngTemplateOutlet="shiftCard; context: { $implicit: e, past: false }" />
+            } @empty {
+              <p class="muted">
+                {{ filtersActive() ? 'No upcoming shifts match your filters.' : "You haven't signed up for anything yet. Pick a day on the calendar or head to Opportunities." }}
+              </p>
+            }
+          } @else {
+            @for (e of pastShifts(); track e.id) {
+              <ng-container *ngTemplateOutlet="shiftCard; context: { $implicit: e, past: true }" />
+            } @empty {
+              <p class="muted">{{ filtersActive() ? 'No past shifts match your filters.' : 'Shifts you complete will appear here.' }}</p>
+            }
           }
         </div>
       }

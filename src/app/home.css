@@ -1,6 +1,6 @@
 .hero { position: relative; display: flex; align-items: center; min-height: 260px; overflow: hidden; background: var(--primary); color: #fff; }
 .hero-img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
-.hero-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(22, 43, 71, 0.9), rgba(22, 43, 71, 0.5)); }
+.hero-overlay { position: absolute; inset: 0; background: linear-gradient(90deg, rgba(22, 43, 71, 0.96), rgba(22, 43, 71, 0.88)); }
 .hero-content { position: relative; padding-top: var(--space-6); padding-bottom: var(--space-6); }
 .hero h1 { margin: 0 0 var(--space-2); font-size: clamp(28px, 5vw, 44px); }
 .hero p { margin: 0; max-width: 520px; font-size: 18px; }
@@ -9,7 +9,6 @@
 .cta-inner { display: flex; justify-content: center; align-items: center; gap: var(--space-4); padding-top: var(--space-4); padding-bottom: var(--space-4); }
 .cta-text { font-weight: 700; color: var(--primary); }
 
-.section-header { margin: var(--space-5) 0 var(--space-2); padding-bottom: var(--space-2); border-bottom: 2px solid var(--border); font-size: 18px; font-weight: 800; }
 .section-toggle { display: flex; justify-content: space-between; align-items: center; width: 100%; border-top: 0; border-left: 0; border-right: 0; background: none; color: var(--text); text-align: left; cursor: pointer; }
 .section-toggle:hover { color: var(--primary); }
 .chevron { transition: transform 0.15s; }
@@ -23,7 +22,7 @@
 .opportunity-card { display: flex; justify-content: space-between; align-items: center; gap: var(--space-3); margin: var(--space-3) 0; padding: var(--space-4); background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); cursor: pointer; transition: box-shadow 0.2s, border-color 0.2s; }
 .opportunity-card:hover { border-color: var(--primary); box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); }
 .opportunity-card.highlight { border-color: var(--accent); box-shadow: 0 0 0 3px rgba(255, 187, 0, 0.4); }
-.opportunity-card.past { background: #fafafa; }
+.opportunity-card.past { background: var(--surface-alt); }
 .opportunity-card.past app-event-thumb { filter: grayscale(1); opacity: 0.75; }
 .opportunity-card.past .card-title, .opportunity-card.past .when { color: var(--text-muted); }
 
@@ -32,6 +31,19 @@
 .card-title { padding: 0; border: 0; background: none; color: var(--text); font-size: 17px; font-weight: 700; text-align: left; cursor: pointer; }
 .when, .details { margin: var(--space-1) 0 0; font-size: 14px; color: var(--text-muted); }
 
+.filter-bar { display: flex; flex-wrap: wrap; align-items: flex-end; gap: var(--space-3); margin: var(--space-3) 0 var(--space-4); padding: var(--space-3) var(--space-4); background: var(--blue-bg); border: 1px solid var(--border); border-radius: var(--radius-lg); }
+.check-field { display: flex; align-items: center; gap: var(--space-2); min-height: 40px; cursor: pointer; }
+.check-field input { width: 18px; height: 18px; }
+.empty-state { padding: var(--space-4) 0; }
+
+.org-line { display: flex; flex-wrap: wrap; align-items: center; gap: var(--space-2); margin: 2px 0 var(--space-1); font-size: 14px; font-weight: 700; }
+.when { display: flex; align-items: center; gap: 6px; }
+.card-action { display: flex; flex-direction: column; align-items: stretch; gap: var(--space-2); flex-shrink: 0; }
+.details-btn { min-height: 36px; }
+
+@media (max-width: 600px) {
+  .card-action { width: 100%; }
+}
 @media (max-width: 600px) {
   .opportunity-card { flex-direction: column; align-items: flex-start; }
   .cta-inner { flex-direction: column; gap: var(--space-3); text-align: center; }

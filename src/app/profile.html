@@ -1,0 +1,46 @@
+<div class="profile-container container">
+  @if (store.account(); as acct) {
+    <header class="profile-head">
+      <span class="avatar-lg" aria-hidden="true">{{ initials() }}</span>
+      <div>
+        <h1>{{ acct.name }}</h1>
+        <p class="muted">{{ acct.email }}</p>
+        <p class="muted">Member since {{ memberSince() }}</p>
+      </div>
+    </header>
+
+    <section aria-labelledby="stats-h">
+      <h2 id="stats-h" class="section-header">Your volunteering</h2>
+      <dl class="stats">
+        <div class="stat"><dt>Upcoming shifts</dt><dd>{{ store.myEvents().length }}</dd></div>
+        <div class="stat"><dt>Past shifts</dt><dd>{{ store.pastShifts().length }}</dd></div>
+        <div class="stat"><dt>Hours completed</dt><dd>{{ store.hoursPast() }}</dd></div>
+        <div class="stat"><dt>Hours scheduled</dt><dd>{{ store.hoursUpcoming() }}</dd></div>
+      </dl>
+      <a routerLink="/schedule">View my schedule</a>
+    </section>
+
+    <section aria-labelledby="orgs-h">
+      <h2 id="orgs-h" class="section-header">Organizations</h2>
+      <p class="muted">Save organizations you like. Saved ({{ store.favoriteOrgs().length }}) can be used as a filter on the Opportunities page.</p>
+      <ul class="org-list">
+        @for (o of orgRows(); track o.name) {
+          <li class="org-row">
+            <span><strong>{{ o.name }}</strong><br><span class="muted">{{ o.open }} open {{ o.open === 1 ? 'opportunity' : 'opportunities' }}</span></span>
+            <button type="button" class="fav-btn" [attr.aria-pressed]="store.isFavorite(o.name)"
+                    [attr.aria-label]="'Save ' + o.name + ' as a favorite organization'" (click)="store.toggleFavorite(o.name)">
+              <span aria-hidden="true">{{ store.isFavorite(o.name) ? '★ Saved' : '☆ Save' }}</span>
+            </button>
+          </li>
+        }
+      </ul>
+    </section>
+  } @else {
+    <div class="signed-out">
+      <h1>Your profile</h1>
+      <p>Log in to see your profile, volunteer hours, and favorite organizations.</p>
+      <a class="btn btn-accent" routerLink="/login">Log in</a>
+      <a class="btn btn-secondary" routerLink="/signup">Sign Up</a>
+    </div>
+  }
+</div>

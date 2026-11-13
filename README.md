@@ -1,120 +1,79 @@
-# DoSomething Website--Prototype V2
+# DoSomething: Prototype V3
 
-A webapp for posting and signing up for public local volunteer listings. (posting will be handled by us on the backend, and it is assumed that general users will not be able to access that backend directly)
-Built with Angular (standalone components, zoneless change detection, signals) and published to GitHub Pages.
+DoSomething is a web app for browsing and signing up for public local volunteer opportunities in Lincoln, Nebraska, with team-posted listings managed through the backend process. This prototype uses hardcoded sample listings. Angular standalone components, signals, and zoneless change detection power the app, which is hosted on GitHub Pages.
 
-## Features
+**Intended users:** Students and Lincoln residents seeking volunteer experience across organizations while keeping shifts in one schedule.
 
-**Implemented**
-- Browse open and past volunteer opportunities on the home page
-- Volunteer for (and cancel) an opportunity
-- Month-view calendar of all opportunities, with a day-detail panel
-- "My Shifts" tab listing everything you've signed up for
-- Sign up for an account (stored for the current browser session only)
-- Header shows the logged-in user's name, with a Log out button
+**Live site:** [https://zeqlous.github.io/DoSomething/](https://zeqlous.github.io/DoSomething/)
 
-**In progress:** see the [Planned Improvements](#planned-improvements) checklist below.
+## Core tasks
 
-**Future:** pull events (image URL, title, details, etc.) from a database instead of the hardcoded list.
+1. **Create an account and return home.** From Opportunities, select **Sign Up Today!**, complete the form, choose **Create Account**, then **Home**. Success: the home page shows your name at the top right.
+2. **View scheduled events.** Select **My Schedule** in the main navigation, then **My Shifts** in the Volunteer Hub. Success: your upcoming signups appear in the list.
+3. **Volunteer for an event.** On Opportunities, choose an event's **Volunteer** action and sign in or create an account if prompted. Success: the event appears under **Your upcoming shifts** on the home page.
 
----
+## V3 features
 
-## User Tasks and Accessing the Site (TAs and Alisha)
+- Event details show organization, category, date, start and end times, and venue.
+- Search, category, and favorite-organization filters for opportunities; no-result states offer **Clear filters**.
+- Month calendar with fixed-size date cells and a **+N more** indicator.
+- **My Shifts** and **Past Shifts** tabs with search and organization filters.
+- Profile with member-since date, shift counts, hours, and favorite organizations.
+- Skip link, per-dialog focus restoration and a Tab/Shift+Tab focus trap, screen-reader labels, status live regions, and reduced-motion support.
+- Sign-up and login errors cover empty or invalid fields, passwords shorter than six characters, duplicate email, and incorrect credentials. Past-event signups are blocked; cancelling a shift asks for confirmation. Signed-out visitors are prompted to sign in or sign up when volunteering or saving an organization.
 
-**Our site is published to GitHub Pages at: [DoSomething.com](https://zeqlous.github.io/DoSomething/)**
+## Run locally
 
-* **Task 1:** Create a Volunteer App account, then return to the main page.
-  *Navigation: Home → "Sign Up Today!" (or "Sign Up" in the header) → fill in the form → Create Account → Home*
-* **Task 2:** Visit your schedule and find what events you have scheduled.
-  *Navigation: Header 📅 icon (or your name) → "Upcoming Events" / "My Shifts" tab*
-* **Task 3:** Register for a new volunteer experience.
-  *Navigation: Home → "Open Opportunities" → Volunteer (you'll be sent to Sign Up first if you have no account). You can also pick a day on the calendar and click Volunteer.*
+Requires Node.js 18 or later.
 
-> **Note:** Accounts and signups are saved in `sessionStorage`. They survive a page refresh but are cleared when the tab is closed or when you log out. The password is validated but never stored (there is no backend yet).
-
----
-
-## Start Developing
-
-### Prerequisites
-* **Node.js** v18+ (check with `node -v`, or install from nodejs.org)
-* **Git** (check with `git --version`)
-
-### Clone and install
 ```bash
 git clone https://github.com/zeqlous/DoSomething.git
 cd DoSomething
 npm install
-```
-
-### Run a local dev server
-```bash
 ng serve
 ```
-- **Open the site:** click the link that appears in the terminal.
-- **Close the site:** `Ctrl+C` (then `Y`), or type `q` and press Enter.
 
-### Build and deploy to GitHub Pages
+For a GitHub Pages build:
+
 ```bash
 ng build --base-href /DoSomething/
 ```
-Publish the contents of `dist/<project-name>/browser` to GitHub Pages.
-The app uses hash routing (e.g. `/#/schedule`), so refreshing any page works on Pages without extra 404 configuration.
 
----
+The app uses hash routing so page refreshes work on Pages.
 
-## File Structure
+Test accounts persist in this browser's `localStorage`; logging out keeps the account. To reset a test session, open DevTools **Application > Storage** and choose **Clear site data**, or use a fresh private window.
 
-The structure is intentionally flat: one folder, with a TypeScript / HTML / CSS file per page.
+## Project structure
 
-```
+```text
 src/
 ├── app/
-│   ├── app.ts / app.html / app.css    # Root component: persistent header + <router-outlet>
-│   ├── app.config.ts                  # App providers (zoneless change detection, hash routing)
-│   ├── app.routes.ts                  # URL → component mappings
-│   ├── store.ts                       # Shared data + session state (events, account, signups)
-│   ├── home.ts / .html / .css         # Home page (open + past opportunities)
-│   ├── schedule.ts / .html / .css     # Calendar view + "My Shifts"
-│   └── signup.ts / .html / .css       # Account creation + confirmation
-├── index.html                         # Main HTML shell
-├── main.ts                            # App entry point
-└── styles.css                         # Global CSS (palette variables planned here)
+│   ├── app.ts / app.html / app.css              # Root layout, navigation, dialogs
+│   ├── app.config.ts / app.routes.ts            # Providers and routes
+│   ├── store.ts                                  # Events, accounts, signups, favorites
+│   ├── initials.ts                               # Shared name-initials helper
+│   ├── home.ts / home.html / home.css            # Opportunities and upcoming shifts
+│   ├── schedule.ts / schedule.html / schedule.css # Calendar and shift lists
+│   ├── profile.ts / profile.html / profile.css   # Volunteer profile and organizations
+│   ├── signup.ts / signup.html / signup.css      # Account creation and login
+│   ├── icon.ts                                   # Inline icon component
+│   ├── event-thumb.ts                            # Event image or icon thumbnail
+│   └── volunteer-action.ts                       # Volunteer and cancel actions
+├── main.ts                                       # Application entry point
+├── index.html                                    # Document shell
+└── styles.css                                    # Global styles and design tokens
 ```
 
-### How the files communicate
+### Add an event
 
-1. **`main.ts`** boots `AppComponent` (`app.ts`) inside **`index.html`** (`<app-root>`).
-2. **`app.routes.ts`** swaps pages into the `<router-outlet>` based on the URL.
-3. **`store.ts`** is an injectable service shared by every page. It holds:
-   - `events`: the list of opportunities (hardcoded for now; replace with a `fetch()` to your database later)
-   - `account`: the signed-in user (a `signal`, saved to `sessionStorage`)
-   - `joinedIds`: the events the user has signed up for
-   - helpers like `toggle(id)`, `register()`, `logout()`
-4. Each page component injects the store (`store = inject(Store)`) and reads its signals in the template, so a change on one page (e.g. volunteering on Home) shows up everywhere (e.g. the Schedule calendar).
+Add an entry to the `events` array in `src/app/store.ts`. Events use `date` in `yyyy-mm-dd` format, `time` for the start, and `endTime` for the end. Each listing needs `venue`, `org`, `category`, `imageAlt`, and an `icon` from `src/app/icon.ts`, along with its ID, title, location, details, and image URL (`''` uses the icon tile).
 
-### Common tasks
+## Limitations
 
-**Edit an existing page:** open the component's `.ts`, `.html` or `.css` file in `src/app/`, edit, and save. The browser auto-reloads.
-
-**Add or change an event:** edit the `events` array in `src/app/store.ts`. Dates use ISO format (`yyyy-mm-dd`). Leave `imageUrl` as `''` to show the emoji icon instead of an image.
-
-**Add a new page route:** create the component, then add it in `src/app/app.routes.ts`:
-```typescript
-import { PageNameComponent } from './page-name';
-
-export const routes: Routes = [
-  { path: 'page-name', component: PageNameComponent }
-];
-```
-
-### Environment variables / API keys
-If we use API keys for a database at any point, they will go in a `.env` file which **DOES NOT GET PUSHED**. These keys will be deployed from the GitHub "Environment Secrets" page :)
-
----
-
-## Known Limitations
-- Data resets when the browser tab is closed (session-only storage; no database yet).
-- Logging out clears the account and its signups.
-- Passwords are not stored or verified.
-- The event list is hardcoded in `store.ts`.
+- There is no backend; accounts, signups, and favorites are stored locally per browser and device.
+- Passwords use salted client-side SHA-256 for this demo only; this is not suitable for production authentication.
+- Sample events, organizations, and venues are hardcoded.
+- Logging out keeps the account and its saved shifts.
+- “Completed” status and hours are inferred from the event end time; there is no check-in.
+- Favorites only filter the event list; organization logos are not included.
+- The app has not been audited with every screen reader.

@@ -3,14 +3,14 @@
     <img class="hero-img" src="https://images.unsplash.com/photo-1531206715517-5c0ba140b2b8?auto=format&fit=crop&w=1200&q=80" alt="" />
     <div class="hero-overlay"></div>
     <div class="container hero-content">
-      <h1>Lend a Hand in Lincoln</h1>
+      <h1>Lend a hand in Lincoln</h1>
       <p>Pick a shift, sign up in a few clicks, and keep every commitment in one schedule.</p>
     </div>
   </section>
 
   @if (store.account()) {
     <section class="container shifts-section" aria-labelledby="shifts-heading">
-      <h2 id="shifts-heading" class="section-header">Your Upcoming Shifts</h2>
+      <h2 id="shifts-heading" class="section-header">Your upcoming shifts</h2>
       @for (e of nextShifts(); track e.id) {
         <a class="shift-row" routerLink="/schedule">
           <app-event-thumb [event]="e" size="sm" />
@@ -40,36 +40,80 @@
       <div class="card-left">
         <app-event-thumb [event]="e" size="md" />
         <div class="card-info">
-          <h3><button type="button" class="card-title">{{ e.title }}</button></h3>
-          <p class="when">{{ store.when(e) }} - {{ e.location }}</p>
+          <h3><button type="button" class="card-title" [attr.aria-label]="e.title + ', view details'" (click)="$event.stopPropagation(); store.openDetails(e.id)">{{ e.title }}</button></h3>
+          <p class="org-line"><span class="org-name">{{ e.org }}</span> <span class="tag">{{ e.category }}</span></p>
+          <p class="when">
+            <app-icon name="calendar" [size]="14" /> {{ store.when(e) }}
+          </p>
+          <p class="when">
+            <app-icon name="pin" [size]="14" /> {{ e.venue }}, {{ e.location }}
+          </p>
           @if (!past) {
             <p class="details">{{ e.details }}</p>
           }
         </div>
       </div>
       <div class="card-action" (click)="$event.stopPropagation()">
+        <button type="button" class="btn btn-secondary details-btn" [attr.aria-label]="'View details for ' + e.title" (click)="store.openDetails(e.id)">Details</button>
         <app-volunteer-action [event]="e" />
+        <button type="button" class="fav-btn" [attr.aria-pressed]="store.isFavorite(e.org)"
+                [attr.aria-label]="'Save ' + e.org + ' as a favorite organization'" (click)="store.toggleFavorite(e.org)">
+          <span aria-hidden="true">{{ store.isFavorite(e.org) ? '★ Saved' : '☆ Save org' }}</span>
+        </button>
       </div>
     </article>
   </ng-template>
 
   <section class="container opportunities-section">
     <h2 class="section-header">Open Opportunities</h2>
-    @for (e of store.openEvents(); track e.id) {
+
+    <div class="filter-bar" role="search" aria-label="Search and filter opportunities">
+      <div class="filter-field grow">
+        <label for="opp-search">Search</label>
+        <input id="opp-search" type="search" placeholder="Title, organization, or place" [value]="query()" (input)="query.set($any($event.target).value)" />
+      </div>
+      <div class="filter-field">
+        <label for="opp-cat">Category</label>
+        <select id="opp-cat" (change)="category.set($any($event.target).value)">
+          <option value="all" [selected]="category() === 'all'">All categories</option>
+          @for (c of store.categories; track c) {
+            <option [value]="c" [selected]="category() === c">{{ c }}</option>
+          }
+        </select>
+      </div>
+      <label class="check-field">
+        <input type="checkbox" [checked]="favoritesOnly()" (change)="favoritesOnly.set($any($event.target).checked)" />
+        Favorite organizations only
+      </label>
+      @if (filtersActive()) {
+        <button type="button" class="btn btn-sm btn-secondary" (click)="clearFilters()">Clear filters</button>
+      }
+    </div>
+    <p class="sr-only" role="status">{{ resultsMessage() }}</p>
+
+    @for (e of openFiltered(); track e.id) {
       <ng-container *ngTemplateOutlet="card; context: { $implicit: e, past: false }" />
     } @empty {
-      <p class="muted">No open opportunities right now.</p>
+      <p class="muted empty-state">
+        @if (filtersActive()) {
+          No opportunities match your search. <button type="button" class="link-btn" (click)="clearFilters()">Clear filters</button> to see everything.
+        } @else {
+          No open opportunities right now.
+        }
+      </p>
     }
 
     @if (store.pastEvents().length) {
       <button type="button" class="section-header section-toggle" [attr.aria-expanded]="showPast()" aria-controls="past-list" (click)="showPast.set(!showPast())">
-        <span>Past Opportunities</span>
+        <span>Past Opportunities ({{ store.pastEvents().length }})</span>
         <app-icon class="chevron" name="chevron" />
       </button>
       @if (showPast()) {
         <div id="past-list">
-          @for (e of store.pastEvents(); track e.id) {
+          @for (e of pastFiltered(); track e.id) {
             <ng-container *ngTemplateOutlet="card; context: { $implicit: e, past: true }" />
+          } @empty {
+            <p class="muted">No past opportunities match your filters.</p>
           }
         </div>
       }

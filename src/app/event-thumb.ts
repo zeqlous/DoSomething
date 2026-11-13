@@ -8,9 +8,11 @@ import { VolunteerEvent } from './store';
   standalone: true,
   imports: [IconComponent],
   host: { '[attr.data-size]': 'size()' },
-  template: `
+    template: `
     @if (event().imageUrl) {
-      <img [src]="event().imageUrl" alt="" />
+      <img [src]="event().imageUrl" [alt]="event().imageAlt" />
+    } @else if (size() === 'lg') {
+      <span class="placeholder" role="img" [attr.aria-label]="event().imageAlt"><app-icon [name]="event().icon" [size]="iconSize()" /></span>
     } @else {
       <span class="placeholder" aria-hidden="true"><app-icon [name]="event().icon" [size]="iconSize()" /></span>
     }
@@ -29,3 +31,4 @@ export class EventThumbComponent {
   size = input<'sm' | 'md' | 'lg'>('md');
   iconSize = computed(() => ({ sm: 24, md: 28, lg: 64 })[this.size()]);
 }
+
