@@ -131,6 +131,25 @@ export class Store {
   /** Current toast message, or null. */
   readonly toast = signal<string | null>(null);
   private toastTimer?: ReturnType<typeof setTimeout>;
+  private dialogOpeners: { id: number; element: HTMLElement | null }[] = [];
+
+  private captureDialogOpener(id: number) {
+    const active = document.activeElement as HTMLElement | null;
+    const main = document.getElementById('main');
+    const element = active && active !== document.body && main?.contains(active)
+      ? active
+      : document.querySelector<HTMLElement>(`[data-event-id="${id}"].card-title`);
+    this.dialogOpeners.push({ id, element });
+  }
+
+  private restoreDialogOpener(opener: { id: number; element: HTMLElement | null } | undefined) {
+    setTimeout(() => {
+      if (opener?.element?.isConnected) { opener.element.focus(); return; }
+      const card = opener && document.querySelector<HTMLElement>(`[data-event-id="${opener.id}"].card-title`)?.closest('article');
+      const replacement = card?.querySelector<HTMLElement>('button[aria-label^="Volunteer for "], button[aria-label^="Cancel "], .details-btn, .card-title, .event-title-btn');
+      (replacement ?? document.getElementById('main'))?.focus();
+    });
+  }
 
   readonly now = signal(new Date());
   private readonly midnightTimer = this.scheduleMidnight();
@@ -242,17 +261,18 @@ export class Store {
 
   openDetails(id: number) {
     const event = this.events.find(e => e.id === id);
-    if (event) this.detailTarget.set(event);
+    if (event && !this.detailTarget()) { this.captureDialogOpener(id); this.detailTarget.set(event); }
   }
 
   closeDetails() {
     this.detailTarget.set(null);
+    if (!this.cancelTarget()) this.restoreDialogOpener(this.dialogOpeners.pop());
   }
 
   /** Escape key: close the top-most dialog only. */
   dismissOverlay() {
-    if (this.cancelTarget()) this.cancelTarget.set(null);
-    else this.detailTarget.set(null);
+    if (this.cancelTarget()) this.dismissCancel();
+    else this.closeDetails();
   }
 
   // ---------- volunteering ----------
@@ -274,19 +294,21 @@ export class Store {
       this.pending.set(pending);
       save('pending', pending);
       this.detailTarget.set(null);
+      this.dialogOpeners.length = 0;
       this.router.navigate(['/signup']);
       return;
     }
     if (this.isJoined(id)) return;
 
     this.join(event);
+    if (this.detailTarget()) this.closeDetails();
     this.showToast(`You're signed up for ${event.title}.`);
   }
 
   /** Step 1 of cancelling: open the confirmation dialog. */
   requestCancel(id: number) {
     const event = this.events.find(e => e.id === id);
-    if (event && this.isJoined(id)) this.cancelTarget.set(event);
+    if (event && this.isJoined(id) && !this.cancelTarget()) { this.captureDialogOpener(id); this.cancelTarget.set(event); }
   }
 
   /** Step 2: the visitor confirmed. */
@@ -295,11 +317,15 @@ export class Store {
     if (!event) return;
     this.persistJoined(this.joinedIds().filter(x => x !== event.id));
     this.cancelTarget.set(null);
+    this.restoreDialogOpener(this.dialogOpeners.pop());
     this.showToast(`You cancelled ${event.title}.`);
   }
 
   dismissCancel() {
     this.cancelTarget.set(null);
+    const opener = this.dialogOpeners.pop();
+    if (!this.detailTarget()) this.restoreDialogOpener(opener);
+    else this.restoreDialogOpener(opener);
   }
 
   private join(event: VolunteerEvent) {

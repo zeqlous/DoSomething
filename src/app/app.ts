@@ -18,8 +18,6 @@ import { initials as makeInitials } from './initials';
 export class AppComponent {
   store = inject(Store);
   private router = inject(Router);
-  private detailTrigger: HTMLElement | null = null;
-  private cancelTrigger: HTMLElement | null = null;
   private detailWasOpen = false;
   private cancelWasOpen = false;
 
@@ -40,24 +38,14 @@ export class AppComponent {
       }
     });
 
-    // Each dialog layer remembers its own trigger so nested dialogs restore focus correctly.
+    // Focus the newly opened dialog; Store captures and restores each opener synchronously.
     effect(() => {
       const detailOpen = !!this.store.detailTarget();
       const cancelOpen = !!this.store.cancelTarget();
-      if (detailOpen && !this.detailWasOpen) this.detailTrigger = document.activeElement as HTMLElement;
-      if (cancelOpen && !this.cancelWasOpen) this.cancelTrigger = document.activeElement as HTMLElement;
       if ((!this.detailWasOpen && detailOpen) || (!this.cancelWasOpen && cancelOpen)) {
         setTimeout(() => {
           this.topDialog()?.querySelector<HTMLElement>('[data-autofocus]')?.focus();
         });
-      }
-      if (this.cancelWasOpen && !cancelOpen) {
-        setTimeout(() => (detailOpen ? this.cancelTrigger : this.detailTrigger)?.focus());
-        this.cancelTrigger = null;
-      }
-      if (this.detailWasOpen && !detailOpen && !cancelOpen) {
-        setTimeout(() => this.detailTrigger?.focus());
-        this.detailTrigger = null;
       }
       this.detailWasOpen = detailOpen;
       this.cancelWasOpen = cancelOpen;

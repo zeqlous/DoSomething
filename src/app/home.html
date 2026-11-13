@@ -40,7 +40,7 @@
       <div class="card-left">
         <app-event-thumb [event]="e" size="md" />
         <div class="card-info">
-          <h3><button type="button" class="card-title" [attr.aria-label]="e.title + ', view details'" (click)="$event.stopPropagation(); store.openDetails(e.id)">{{ e.title }}</button></h3>
+          <h3><button type="button" class="card-title" [attr.data-event-id]="e.id" [attr.aria-label]="e.title + ', view details'" (click)="$event.stopPropagation(); store.openDetails(e.id)">{{ e.title }}</button></h3>
           <p class="org-line"><span class="org-name">{{ e.org }}</span> <span class="tag">{{ e.category }}</span></p>
           <p class="when">
             <app-icon name="calendar" [size]="14" /> {{ store.when(e) }}
@@ -54,7 +54,7 @@
         </div>
       </div>
       <div class="card-action" (click)="$event.stopPropagation()">
-        <button type="button" class="btn btn-secondary details-btn" [attr.aria-label]="'View details for ' + e.title" (click)="store.openDetails(e.id)">Details</button>
+        <button type="button" class="btn btn-secondary details-btn" [attr.data-event-id]="e.id" [attr.aria-label]="'View details for ' + e.title" (click)="store.openDetails(e.id)">Details</button>
         <app-volunteer-action [event]="e" />
         <button type="button" class="fav-btn" [attr.aria-pressed]="store.isFavorite(e.org)"
                 [attr.aria-label]="'Save ' + e.org + ' as a favorite organization'" (click)="store.toggleFavorite(e.org)">

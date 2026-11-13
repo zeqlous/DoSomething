@@ -21,7 +21,7 @@
         <article class="my-event-card" [class.is-past]="past" (click)="store.openDetails(e.id)">
           <app-event-thumb [event]="e" size="sm" />
           <div class="event-details">
-            <h3 class="event-title"><button type="button" class="event-title-btn">{{ e.title }}</button></h3>
+            <h3 class="event-title"><button type="button" class="event-title-btn card-title" [attr.data-event-id]="e.id">{{ e.title }}</button></h3>
             <p class="event-org"><strong>{{ e.org }}</strong> <span class="tag">{{ e.category }}</span></p>
             <p class="event-date">{{ store.when(e) }}</p>
             <p class="event-location">{{ e.venue }}, {{ e.location }}</p>
