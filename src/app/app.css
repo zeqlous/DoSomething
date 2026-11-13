@@ -60,3 +60,10 @@ main:focus { outline: none; }
   .modal-actions { flex-direction: column-reverse; }
   .modal-actions .btn { width: 100%; }
 }
+
+@media (max-width: 380px) {
+  .navbar-inner { flex-wrap: wrap; gap: var(--space-1); }
+  .logo { font-size: 18px; }
+  .user-auth { margin-left: auto; }
+  .user-name { max-width: 76px; }
+}

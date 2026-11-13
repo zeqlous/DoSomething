@@ -53,9 +53,16 @@
 .legend-chip { width: auto; padding: 3px 10px; font-size: 12px; }
 
 @media (max-width: 700px) {
+  .schedule-container { padding: var(--space-2); }
+  .schedule-layout { flex-direction: column; min-height: 0; }
+  .sidebar { flex: 0 0 auto; padding: var(--space-3); border-right: 0; border-bottom: 1px solid var(--border); }
+  .hub-nav { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--space-1); margin-top: var(--space-3); }
+  .nav-item { flex-direction: column; justify-content: center; gap: var(--space-1); padding: var(--space-2) var(--space-1); font-size: 12px; line-height: 1.2; text-align: center; }
+  .count-badge { margin-left: 0; }
+  .events-main { padding: var(--space-3); }
   .cal-cell, .cal-empty { height: 96px; }
   .chip-text { display: none; }
   .chip { justify-content: center; }
-  .more { font-size: 10px; padding: 0; }
+  .more { padding: 0; font-size: 9px; letter-spacing: -0.25px; white-space: nowrap; transform: scaleX(0.88); transform-origin: left center; }
   .my-event-card { flex-wrap: wrap; }
 }
